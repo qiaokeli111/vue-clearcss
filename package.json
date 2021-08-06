@@ -1,0 +1,17 @@
+{
+  "name": "clearcss",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "aa":"node ./parsehtml"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "postcss": "^8.3.6",
+    "precss": "^4.0.0",
+    "vue-template-compiler": "^2.6.14"
+  }
+}
