@@ -5,12 +5,15 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "aa":"node ./parsehtml"
+    "aa": "node ./parsehtml"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "chalk": "^4.1.2",
     "postcss": "^8.3.6",
+    "postcss-comment": "^2.0.0",
+    "postcss-selector-parser": "^6.0.6",
     "precss": "^4.0.0",
     "vue-template-compiler": "^2.6.14"
   }
