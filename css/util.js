@@ -62,94 +62,36 @@ function findEleWithHtml(ele, ast) {
 
 function generateTemplate(before, after) {
   let startHead = `
-                  let currentIndex = -1,currentEle, result = [], temp = []
-                  main: while ((currentEle = searchEleResult[++currentIndex])) {
+                  let currentIndex, currentEle, result
                   `
   let endHead = `
                 return result
                 `
-  let source = `
-                temp.push(searchEleResult[currentIndex])
-                continue main
-                `
-  let combinator = {
-    ' ': () => `
-                while ((currentEle = currentEle.parent)) {
-                ${source}
-                }
-                `,
-  }
-  let afterCombinator = {
-    ' ': () => `
-                while (currentEle && currentEle.children) {
-                    currentEle.children.forEach(childEle=>{
-                        currentEle = childEle
-                        ${source}
-                    })
-                }
-            `,
-  }
   
   // todo 没有解析动态的class id
-  let typeDis = {
-    tag: (name) => `if(currentEle.tag === '${name}'){
-                        ${source}
-                    }`,
-    class: (
-      name
-    ) => `if(currentEle.attrsMap && currentEle.attrsMap.class === '${name}'){
-                        ${source}
-                    }`,
-    id: (
-      name
-    ) => `if(currentEle.attrsMap && currentEle.attrsMap.id === '${name}'){
-                        ${source}
-                    }`,
 
-    combinator: (selector) => combinator[selector](),
-    afterCombinator:(selector) => afterCombinator[selector](),
-  }
+  var {createTemplate} = require('../template/createTemplate')
+  var {typeDis,afterCombinator,combinator} = require('../template/dispose')
+  
   // 先解析before
-  for (let i = 0; i < before.length; i++) {
-    const e = before[i]
-    source = typeDis[e.type](e.value)
+  var beforeTemplate
+  if (Array.isArray(before) && before.length > 0) {
+    beforeTemplate =new createTemplate(typeDis,combinator)
+    beforeStr = beforeTemplate.builderTemplate(before)
   }
-  source += `
-            }
-            `
 
+
+
+  var afterTemplate
   if (Array.isArray(after) && after.length > 0) {
-    var afterHead = `
-            var afterIndex = -1
-            after: while ((currentEle = temp[++afterIndex])) {
-        `
-    var endAfterHead = `
-            }
-    `
-    let afterSource = `
-                        result.push(temp[currentIndex])
-                        continue after
-                      `
-
-    for (let i = 0; i < after.length; i++) {
-      const e = after[i]
-      if (e.type === 'combinator') {
-        afterSource = typeDis['afterCombinator'](e.value)
-      } else {
-        afterSource = typeDis[e.type](e.value)
-      }
-      
-    }
-    source += afterHead + afterSource + endAfterHead
-  } else {
-    source += `
-        result = temp
-    `
-  }
+    afterTemplate =new createTemplate(typeDis,afterCombinator)
+    afterStr = afterTemplate.builderTemplate(after.reverse())
+  } 
+  let functionBody = startHead + beforeStr + afterStr + endHead
   
   let templateFun = new Function(
     'searchEleResult',
-    startHead + source + endHead
+    functionBody
   )
   return templateFun
 }

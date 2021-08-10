@@ -34,6 +34,10 @@ $width: 5em;
     //   color: #42b983;
         #ee{
             color: #000;
+            #rr{
+                background: red;
+                color: #000;
+            }
         }
     }
   }

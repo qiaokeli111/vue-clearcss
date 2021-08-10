@@ -1,4 +1,6 @@
 //  测试
+1 筛选出来的元素是id class  tag
+2 筛选的元素只有before 或者s after
 //  vue的动态class id
 //  after的处理
 //  vue ui的集成
