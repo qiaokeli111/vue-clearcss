@@ -18,13 +18,13 @@ let typeDis = {
 
 let afterCombinator = {
     " ": (source) => `
-                while (currentEle && currentEle.children) {
-                    for (const childEle of currentEle.children) {
-                        currentEle = childEle
-                        ${source}
+                    while (currentEle && (currentEle = currentEle.children)) {
+                        for (const childEle of currentEle) {
+                            currentEle = childEle
+                            ${source}
+                        }
                     }
-                }
-            `,
+                    `,
 }
 let combinator = {
     " ": (source) => `
@@ -36,5 +36,5 @@ let combinator = {
 module.exports = {
     typeDis,
     combinator,
-    afterCombinator
+    afterCombinator,
 }

@@ -5,12 +5,14 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "aa": "node ./parsehtml"
+    "perf": "node ./parsehtml --perf",
+    "fl": "node ./parsehtml "
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "chalk": "^4.1.2",
+    "minimist": "^1.2.5",
     "postcss": "^8.3.6",
     "postcss-comment": "^2.0.0",
     "postcss-selector-parser": "^6.0.6",
