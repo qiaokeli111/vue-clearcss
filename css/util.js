@@ -1,25 +1,58 @@
 var argv = require("minimist")(process.argv.slice(2))
-function matchEleAttr(matcher, value) {
-    if (Object.prototype.toString.call(matcher) === "[object String]") {
-        matcher = matcher.split(" ")
-        return matcher.includes(value)
+var matchCache = require("./cacheMatchElement")
+var { findFirstNotEmpty, getAttrFormStr } = require("../util")
+function matchEleAttr(matcher,type, value) {
+    if (matcher) {
+        if (type === 'class') {
+            let classList = []
+            if (matcher.classBinding) {
+                let bindClass = getAttrFormStr(matcher.classBinding)
+            }
+        }
+        if (Object.prototype.toString.call(matcher) === "[object String]") {
+            matcher = matcher.split(" ")
+            return matcher.includes(value)
+        }
     }
 }
 
 function findSearchEle(nodes) {
-    let lastClassIndex, lastIdIndex, lastTagIndex
+    let lastClassIndex,
+        lastIdIndex,
+        lastTagIndex,
+        cacheLastClassIndex,
+        cacheLastIdIndex,
+        cacheLastTagIndex
     var typeDispose = {
-        class: (i) => {
+        class: (i, element) => {
+            if (
+                !cacheLastClassIndex &&
+                matchCache.hasCache(matchCache.builderCacheKey(element))
+            ) {
+                cacheLastClassIndex = i
+            }
             if (!lastClassIndex) {
                 lastClassIndex = i
             }
         },
-        id: (i) => {
+        id: (i, element) => {
+            if (
+                !cacheLastIdIndex &&
+                matchCache.hasCache(matchCache.builderCacheKey(element))
+            ) {
+                cacheLastIdIndex = i
+            }
             if (!lastIdIndex) {
                 lastIdIndex = i
             }
         },
-        tag: (i) => {
+        tag: (i, element) => {
+            if (
+                !cacheLastTagIndex &&
+                matchCache.hasCache(matchCache.builderCacheKey(element))
+            ) {
+                cacheLastTagIndex = i
+            }
             if (!lastTagIndex) {
                 lastTagIndex = i
             }
@@ -35,24 +68,33 @@ function findSearchEle(nodes) {
     for (let i = nodes.length - 1; i >= 0; i--) {
         const element = nodes[i]
         let type = element.type
-        typeDispose[type] && typeDispose[type](i)
+        typeDispose[type] && typeDispose[type](i, element)
     }
     return disposeNode(
-        lastClassIndex || lastIdIndex || lastTagIndex || nodes.length - 1
+        findFirstNotEmpty(
+            cacheLastClassIndex,
+            cacheLastIdIndex,
+            cacheLastTagIndex,
+            lastClassIndex,
+            lastIdIndex,
+            lastTagIndex,
+            nodes.length - 1
+        )
     )
 }
 
 function findEleWithHtml(ele, ast) {
     let htmlEleArr = []
+    if (matchCache.hasCache(matchCache.builderCacheKey(ele))) {
+        return matchCache.getCache(matchCache.builderCacheKey(ele))
+    }
     function traversesWithHtml(ele, ast) {
         if (!ast) return
         let type = ele.type
         let typeDis = {
             tag: ({ value }) => ast.tag === value,
-            class: ({ value }) =>
-                ast.attrsMap && matchEleAttr(ast.attrsMap.class, value),
-            id: ({ value }) =>
-                ast.attrsMap && matchEleAttr(ast.attrsMap.id, value),
+            class: ({ value }) => matchEleAttr(ast, "class", value),
+            id: ({ value }) => matchEleAttr(ast, "id", value),
         }
         if (typeDis[type](ele)) {
             htmlEleArr.push(ast)
@@ -65,12 +107,14 @@ function findEleWithHtml(ele, ast) {
     if (Object.getOwnPropertyNames(ast).length > 0) {
         traversesWithHtml(ele, ast)
     }
+    matchCache.setCache(matchCache.builderCacheKey(ele), htmlEleArr)
     return htmlEleArr
 }
 
 function generateTemplate(before, after) {
     let startHead = `
                   let currentIndex, currentEle, result = searchEleResult
+                  ${matchEleAttr.toString()}
                   `
     let endTail = `
                 return result

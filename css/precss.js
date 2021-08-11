@@ -4,11 +4,14 @@ const parser = require("postcss-selector-parser")
 const util = require('./util')
 const chalk = require('chalk');
 const comment = require('postcss-comment')
+var matchCache = require("./cacheMatchElement")
 var filterCssArray = []
 var htmlast = {}
 module.exports = function parsecss(css,ast) {
     htmlast = ast
+    // reset status at the begin
     clearCssArray()
+    matchCache.clearCache()
     postcss([precss()])
         .process(css, { from: undefined, parser: comment})
         .then((e) => {

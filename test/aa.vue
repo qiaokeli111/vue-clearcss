@@ -1,1092 +1,1412 @@
-
 <template>
-    <div v-loading="loading" class="app-container">
-        <div class="top__nav">
-            <div class="top__nav__title">编辑楼盘</div>
-            <div class="">
-                <!-- 静态使用projects 动态使用projectList -->
-                <span class="top__tips">已选中{{ type == 1 ? projects.length : projectList.total }}条数据</span> <el-button type="primary" @click="back">完成编辑</el-button>
-            </div>
-        </div>
-        <div v-if="type == 1" class="common-search white-bg">
-            <el-input v-model="listParam.keyword" placeholder="直接输入楼盘关键词或楼盘ID进行搜索" class="input-with-select" @change="loadList">
-                <el-button slot="append" icon="el-icon-search"></el-button>
-            </el-input>
-        </div>
-        <div class="filter">
-            <div class="filter__top">
-                <span>筛选信息(部分项可以多选)</span>
-            </div>
-            <div class="filter__main">
-                <el-row class="filter__main_item">
-                    <el-col :span="2">
-                        <span class="filter__main__title">区域：</span>
-                    </el-col>
-                    <el-col :span="20">
-                        <el-checkbox v-model="checkAreaAll" label="all" @change="handleCheckAreaAllChange">全部</el-checkbox>
-                        <el-checkbox-group v-model="filterParam.district_id" @change="handleCheckedAreaChange">
-                            <el-checkbox v-for="(item , index) in district_id" :key="index" :label="item.value">{{ item.text }}</el-checkbox>
-                        </el-checkbox-group>
-                    </el-col>
-                </el-row>
-                <el-row class="filter__main_item">
-                    <el-col :span="2">
-                        <span class="filter__main__title">商圈：</span>
-                    </el-col>
-                    <el-col :span="20">
-                        <BizCircleSelector ref="biz_circle_id" :ids.sync="filterParam.biz_circle_id" :select-biz-list.sync="bizCircleList" @updateIds="handelUpdateIds('biz_circle_id')" />
-                    </el-col>
-                </el-row>
-                <el-row class="filter__main_item">
-                    <el-col :span="2">
-                         <span class="filter__main__title">价格：</span>
-                    </el-col>
-                    <el-col :span="20">
-                        <el-radio-group
-                        v-model="param.priceType"
-                        size="mini"
-                        @change="switchPrice">
-                            <el-radio label="1">单价</el-radio>
-                            <el-radio label="2">总价</el-radio>
-                        </el-radio-group>
-                    </el-col>
-                </el-row>
-                <el-row v-if="param.priceType ==1" class="filter__main_item">
-                    <el-col :span="2">
-                         <span class="filter__main__title">单价区间：</span>
-                    </el-col>
-                    <el-col :span="20">
-                       <el-radio-group v-model="filterParam.price" @change="handleCheckedPriceChange">
-                            <el-radio v-for="(item , index) in price" :key="index" :label="item.value">{{ item.text }}</el-radio>
-                        </el-radio-group>
-                    </el-col>
-                </el-row>
+    <ShareTimelineLayout>
+        <view
+            :style="{
+                '--status-bar-h': statusBarHeight + 'rpx',
+                '--nav-header-h': marginTop + 'rpx',
+            }"
+            :class="{
+                'main-container': true,
+                'newYear-theme': isNewYearTheme,
+                'year-100-party': is100YearsParty,
+            }"
+        >
+            <BusiNavHeader
+                ref="busiNavHeader"
+                :style="{ '--opacity-top': opacityTop }"
+                isTabbarPage
+            />
 
-                <el-row v-if="param.priceType ==1" class="filter__main_item">
-                    <el-col :span="2">
-                         <span class="filter__main__title">单价自定义：</span>
-                    </el-col>
-                    <el-col :span="6">
-                        <div class="flex flex-between">
-                            <el-input v-model="param.lowPrice" placeholder="自定义单价最低" size="small" @change="handelPriceChange">
-                                <template slot="append">元</template>
-                            </el-input>
-                            <div class="w50 center"> - </div>
-                            <el-input v-model="param.hightPrice" placeholder="自定义单价最高" size="small" @change="handelPriceChange">
-                                <template slot="append">元</template>
-                            </el-input>
-                        </div>
-                    </el-col>
-                </el-row>
+            <view class="top-shadow-scroll" />
 
-                <el-row class="filter__main_item">
-                    <el-col :span="2">
-                         <span class="filter__main__title">地铁线：</span>
-                    </el-col>
-                    <el-col :span="20">
-                        <el-checkbox v-model="checkMetroAll" label="all" @change="handleCheckMetroAllChange">全部</el-checkbox>
-                        <el-checkbox-group v-model="filterParam.metro_id" @change="handleCheckedMetroChange">
-                            <el-checkbox v-for="(item , index) in metro_id" :key="index" :label="item.value">{{ item.text }}</el-checkbox>
-                        </el-checkbox-group>
-                    </el-col>
-                </el-row>
+            <!-- 添加我的小程序 -->
+            <BaseAddMiniApp @onAdd="addMyProgramHandle" />
 
-                <el-row class="filter__main_item">
-                    <el-col :span="2">
-                         <span class="filter__main__title">特色功能：</span>
-                    </el-col>
-                    <el-col :span="20">
-                        <el-checkbox v-model="checkSpecialAll" label="all" @change="handleCheckSpecialAllChange">全部</el-checkbox>
-                        <el-checkbox-group v-model="filterParam.not_deficiency" @change="handleCheckedSpecialChange">
-                            <el-checkbox v-for="(item , index) in not_deficiency" :key="index" :label="item.value">{{ item.text }}</el-checkbox>
-                        </el-checkbox-group>
-                    </el-col>
-                </el-row>
+            <!-- 添加到桌面/浮窗 -->
+            <view v-if="showedAddMyprogram">
+                <AddDesktop :show.sync="showAddDesktop" />
+            </view>
 
-
-
-                <el-row v-if="param.priceType ==2" class="filter__main_item">
-                    <el-col :span="2">
-                         <span class="filter__main__title">总价区间：</span>
-                    </el-col>
-                    <el-col :span="20">
-                       <el-radio-group v-model="filterParam.total_price" @change="handleCheckedtotal_priceChange">
-                            <el-radio v-for="(item , index) in total_price" :key="index" :label="item.value">{{ item.text }}</el-radio>
-                        </el-radio-group>
-                    </el-col>
-                </el-row>
-
-                <el-row v-if="param.priceType ==2" class="filter__main_item">
-                    <el-col :span="2">
-                         <span class="filter__main__title">总价自定义：</span>
-                    </el-col>
-                    <el-col :span="6">
-                        <div class="flex flex-between">
-                            <el-input v-model="param.lowTotal_price" placeholder="自定义总价最低" size="small" @change="handelPriceChange">
-                                <template slot="append">万元</template>
-                            </el-input>
-                            <div class="w50 center"> - </div>
-                            <el-input v-model="param.hightTotal_price" placeholder="自定义总价最高" size="small" @change="handelPriceChange">
-                                <template slot="append">万元</template>
-                            </el-input>
-                        </div>
-                    </el-col>
-                </el-row>
-
-                <el-row class="filter__main_item">
-                    <el-col :span="2">
-                         <span class="filter__main__title">面积：</span>
-                    </el-col>
-                    <el-col :span="20">
-                        <el-checkbox v-model="checkSquareAll" label="all" @change="handleCheckSquareAllChange">全部</el-checkbox>
-                        <el-checkbox-group v-model="filterParam.square" @change="handleCheckedSquareChange">
-                            <el-checkbox v-for="(item , index) in square" :key="index" :label="item.value">{{ item.text }}</el-checkbox>
-                        </el-checkbox-group>
-                    </el-col>
-                </el-row>
-                <el-row class="filter__main_item">
-                    <el-col :span="2">
-                         <span class="filter__main__title">装修：</span>
-                    </el-col>
-                    <el-col :span="20">
-                      <el-radio-group v-model="filterParam.is_decorated" @change="handleCheckedDecorateChange">
-                            <el-radio v-for="(item , index) in is_decorated" :key="index" :label="item.value">{{ item.text }}</el-radio>
-                        </el-radio-group>
-                    </el-col>
-                </el-row>
-                <el-row class="filter__main_item">
-                    <el-col :span="2">
-                         <span class="filter__main__title">物业：</span>
-                    </el-col>
-                    <el-col :span="20">
-                      <el-checkbox v-model="checkPropertyAll" label="all" @change="handleCheckPropertyAllChange">全部</el-checkbox>
-                      <el-checkbox-group v-model="filterParam.property_type" @change="handleCheckedPropertyChange">
-                            <el-checkbox v-for="(item , index) in property_type" :key="index" :label="item.value">{{ item.text }}</el-checkbox>
-                        </el-checkbox-group>
-                    </el-col>
-                </el-row>
-                <el-row class="filter__main_item">
-                    <el-col :span="2">
-                         <span class="filter__main__title">销售状态：</span>
-                    </el-col>
-                    <el-col :span="20">
-                      <el-radio-group v-model="filterParam.status" @change="handleCheckedStatusChange">
-                            <el-radio v-for="(item , index) in status" :key="index" :label="item.value">{{ item.text }}</el-radio>
-                        </el-radio-group>
-                    </el-col>
-                </el-row>
-                 <el-row class="filter__main_item">
-                    <el-col :span="2">
-                        <span class="filter__main__title">选择品牌：</span>
-                    </el-col>
-                    <el-col :span="20">
-                        <brandSelector ref="trademark_id" :ids.sync="filterParam.trademark_id" :trademark-list.sync="trademarkList" @updateIds="handelUpdateIds('trademark_id')" />
-                    </el-col>
-                </el-row>
-                <el-row class="filter__main_item">
-                    <el-col :span="2">
-                        <span class="filter__main__title">物业公司：</span>
-                    </el-col>
-                    <el-col :span="20">
-                        <PropertyConpanySelector ref="property_company" :ids.sync="filterParam.property_company" :select-company-list.sync="propertyCompanyList" @updateIds="handelUpdateIds('property_company')" />
-                    </el-col>
-                </el-row>
-                <el-row class="filter__main_item">
-                    <el-col :span="2">
-                        <span class="filter__main__title">开发商：</span>
-                    </el-col>
-                    <el-col :span="20">
-                        <DeveloperSeletor ref="developer" :ids.sync="filterParam.developer" :select-developer-list.sync="developerList" @updateIds="handelUpdateIds('developer')" />
-                    </el-col>
-                </el-row>
-            </div>
-        </div>
-        <div class="check">
-            <div class="check__info">共找到{{ projectList.total }}条数据</div>
-            <div class="check__cont">
-                <!--eslint-disable-next-line vue/no-use-v-if-with-v-for-->
-                <template v-for="(item,index) in filterParam" v-if="item!=[] && item!=''">
-                    <template v-if="typeof item == 'object'">
-                        <div v-for="(per) in item" :key="per" class="check__cont__item">
-                            <span> {{ per | filterParam(index) }}</span>
-                            <i class="el-icon-error" @click="handleRemoveCondition(index,per.value || per)"></i>
-                        </div>
+            <!--头部搜索模块-->
+            <view
+                class="home__search"
+                :style="{ '--opacity-top': opacityTop, top: marginTop + 'rpx' }"
+            >
+                <busi-search
+                    to-url="/subPackages/search/pages/index?from=home"
+                    class="index-top-search"
+                    suspendIcon="https://imgcdn.huanjutang.com/assets/img/20214271149528081.png"
+                    mode="tabbar"
+                    :input-value="inputPlace"
+                    :analysis="{
+                        dataName: '首页-搜索框',
+                    }"
+                    :right-custom-url="customUrl"
+                    :left-custom-url="leftcustomUrl"
+                >
+                    <template
+                        slot="searchIcon"
+                        style="display: flex"
+                    >
+                        <image
+                            :src="
+                                isNewYearTheme
+                                    ? 'https://imgcdn.huanjutang.com/file/2021/01/27/fb0dbae5c4886aca2839cd8b9efcb1b3.png'
+                                    : 'https://imgcdn.huanjutang.com/image/2020/05/18/9bef8839ce3044147520cbc134096918.png'
+                            "
+                            class="nav-search__icon"
+                        />
                     </template>
-                    <div v-else :key="index" class="check__cont__item">
-                        <span> {{ item | filterParam(index) }}</span>
-                        <i class="el-icon-error" @click="handleRemoveCondition(index,item)"></i>
-                    </div>
-                </template>
-            </div>
-        </div>
-        <div class="common-table">
-            <el-row v-if="type == 1" class="mb-20">
-                <el-col :span="3" :offset="21">
-                    <el-button type="primary" @click="selectCurrentPage">当页全选</el-button>
-                </el-col>
-            </el-row>
-            <el-table
-                ref="filterTable"
-                :data="projectList.data"
-                style="width: 100%">
-                <el-table-column label="楼盘编号" prop="id"></el-table-column>
-                <el-table-column label="楼盘名称" prop="name"></el-table-column>
-                <el-table-column label="区域" prop="area">
-                    <template slot-scope="scope">
-                        {{ scope.row.area | district }}
-                    </template>
-                </el-table-column>
-                <el-table-column label="销售状态" prop="status">
-                    <template slot-scope="scope">
-                        {{ scope.row.status | status }}
-                    </template>
-                </el-table-column>
-                <el-table-column label="热度" prop="hot_num"></el-table-column>
-                <el-table-column label="浏览量" prop="page_views"></el-table-column>
-                <el-table-column label="添加时间" prop="created_at"></el-table-column>
-                <el-table-column v-if="detail.type == 1" label="操作" width="200" fixed="right" align="center">
-                    <template slot-scope="scope">
-                        <el-button v-if="!projects.includes(scope.row.id)" round @click="checkProjects(scope.row)">选择</el-button>
-                        <el-button v-else type="primary" round @click="delProjects(scope.row)">已选择</el-button>
-                    </template>
-                </el-table-column>
-            </el-table>
-            <el-pagination
-                :current-page="listParam.page"
-                :page-sizes="[8, 16, 32, 64]"
-                :page-size="listParam.size"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="projectList.total"
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange">
-            </el-pagination>
-        </div>
-        <!-- 对话框 -->
-        <div class="dialog">
-            <!-- 对话框 -->
-            <el-dialog
-                title="提示"
-                :visible.sync="dialogVisible"
-                width="30%">
-                <span>已选中{{ type == 1 ? projects.length : projectList.total }}条数据</span>
-                <span slot="footer" class="dialog-footer">
-                    <el-button @click="dialogVisible = false">取 消</el-button>
-                    <el-button type="primary" @click="submitBack">确 定</el-button>
-                </span>
-            </el-dialog>
-        </div>
-    </div>
+                    <BusiSearchSwiper
+                        style="flex: 1"
+                        :config="hotSearchList.config"
+                        :list="hotSearchList.list"
+                    />
+                    <view
+                        slot="suspendIcon"
+                        class="nav-search-suspend-wrap"
+                        @click.stop="emptyFunction"
+                    >
+                        <view class="nav-search-suspend-border" />
+                        <navigator
+                            hover-class="none"
+                            :url="customUrl"
+                            data-name="地图找房"
+                            class="nav-search-suspend"
+                            @click="emptyFunction"
+                        >
+                            <img
+                                src="https://imgcdn.huanjutang.com/assets/img/20214271149528081.png"
+                                class="nav-search-suspend-icon"
+                                alt=""
+                                srcset=""
+                            >
+                        </navigator>
+                    </view>
+                </busi-search>
+            </view>
+
+            <!-- 页面 -->
+            <view class="page">
+                <!-- banner模块 -->
+                <view class="bannerModule">
+                    <img
+                        :src="is100YearsParty ? 'https://imgcdn.huanjutang.com/assets/img/20216301322487887.png' : 'https://imgcdn.huanjutang.com/assets/img/20214211952298081.png'"
+                        class="top-shadow"
+                    >
+                    <BaseBanner
+                        source="home"
+                        :dataApi="banners.list"
+                        :config="banners.config"
+                        @swiperNavHandle="swiperNavHandle"
+                    />
+                </view>
+
+                <!--活动-->
+                <view
+                    v-if="activity"
+                    :class="{activityModule: activity.middleBanner.list.length>0}"
+                    class="activity__container"
+                >
+                    <BusiActivity
+                        :dataApi="activity"
+                        @close="closeHandle"
+                    />
+                </view>
+
+                <!-- 九宫格导航 -->
+                <view class="grid-middle">
+                    <BusiGrid
+                        :dataApi="grids"
+                        :topApi="top"
+                    />
+                </view>
+
+                <!-- 头条新闻部分 -->
+                <view
+                    v-if="listData.length > 0"
+                    class="news"
+                >
+                    <BusiNews :dataApi="listData" />
+                </view>
+
+                <!--魔方模块-->
+                <view
+                    v-if="cube.code && cube.detail.length > 0"
+                    class="cube"
+                >
+                    <BusiCube :dataApi="cube" />
+                </view>
+
+                <!-- 热门推荐 -->
+                <view
+                    v-if="hasShowHotRecommend"
+                    class="project-hot-new"
+                    :style="{
+                        'margin-bottom': recommendBanners.list.length === 0 ? '32rpx' : 0
+                    }"
+                >
+                    <view class="select-title select-title--sb">
+                        <text class="fz-20 font-bold">
+                            热门推荐
+                        </text>
+                        <view
+                            v-if="recommendList.length > 3"
+                            id="hotRecommendMore"
+                            data-name="更多热门推荐"
+                            data-content="热门推荐"
+                            data-type="link"
+                            @tap="
+                                jumpUrlHandle(
+                                    '/subPackages/project/pages/hotRecommend?type=hotRecommend&title=热门推荐',
+                                    '热门推荐-更多'
+                                )
+                            "
+                        >
+                            <text class="fz-12 gray-96">
+                                查看更多
+                            </text><text class="iconnew new-tongyong-gengduo fz-10 gray-96" />
+                        </view>
+                    </view>
+                    <view class="hot_recommend__list">
+                        <ProjectItem
+                            adSource="hotRecommend"
+                            adType="order"
+                            sourcePosition="home"
+                            content="index_hot_top"
+                            :items="tabContentNew"
+                            titleData="热门推荐"
+                        />
+                    </view>
+                    <HomeProjectItem
+                        v-if="tabContent.length > 0"
+                        content="index_hot_bottom"
+                        :itemsData="tabContent"
+                        titleData="热门推荐"
+                    />
+                </view>
+                <!--广告图片-->
+                <view
+                    v-if="recommendBanners.list.length > 0"
+                    class="recommendBanner"
+                >
+                    <BaseBanner
+                        source="home"
+                        :height="136"
+                        :dataApi="recommendBanners.list"
+                        :config="recommendBanners.config"
+                        :swiperDots="false"
+                        @swiperNavHandle="swiperNavHandle"
+                    />
+                </view>
+
+                <!-- 一些列表的预览 -->
+                <ListPreview
+                    :topApi="top"
+                    :sliceRange="[0,1]"
+                    :showTopborder="recommendBanners.list.length <= 0"
+                />
+
+                <!--优秀置业顾问-->
+                <view
+                    v-if="sales_man_data.length > 0"
+                    class="sales_man block-bottom-bg"
+                >
+                    <block v-if=" recommend_rule && is_sales_man_id > 0">
+                        <navigator
+                            :url="recommend_rule"
+                            hover-class="none"
+                            class="select-title sales-man-title"
+                        >
+                            <text class="fz-20 font-bold">
+                                优秀顾问推荐
+                            </text>
+                            <text class="iconnew new-wenhaocopy fz-18 gray-9-color" />
+                        </navigator>
+                    </block>
+                    <block v-else>
+                        <view class="select-title sales-man-title">
+                            <text class="fz-20 font-bold">
+                                优秀顾问推荐
+                            </text>
+                        </view>
+                    </block>
+
+                    <view class="sales_man_cont">
+                        <MiniSalesCard
+                            :showIcon="false"
+                            :list="sales_man_data"
+                            style="width: 100%"
+                        />
+                    </view>
+                </view>
+                <!-- 一些列表的预览 -->
+                <ListPreview
+                    :topApi="top"
+                    :sliceRange="[1,3]"
+                />
+
+                <!--栏目管理模块-->
+                <view
+                    v-if="sectionsUpdate && sections.length > 0"
+                    class="columnModule"
+                >
+                    <BusiColumn
+                        ref="column"
+                        :margin-top="114 + marginTop + 'rpx'"
+                        :dataApi.sync="sections"
+                        :titleData="'首页-' + latestOpeningObj.titleStr"
+                    />
+                </view>
+                <!--弹框广告-->
+                <view
+                    v-if="isShow"
+                    class="advertise-hide"
+                    catchtouchmove="ture"
+                    @click.stop="closeHideHandle"
+                >
+                    <view
+                        class="adertise-wrap"
+                        :style="
+                            'height:' +
+                                adWrapHeight +
+                                'px; top:' +
+                                (marginTop - 12) +
+                                'rpx'
+                        "
+                    >
+                        <view class="adertise-box">
+                            <view class="white-color">
+                                广告
+                            </view>
+                            <view
+                                class="advertise_close-button"
+                                @click.stop="closeHideHandle"
+                            >
+                                跳过 {{ second }}
+                            </view>
+                            <view
+                                class="advertise"
+                                data-custom-event-name="AD_click"
+                                data-custom-prop-ad_medium="小程序"
+                                data-custom-prop-ad_type="mask"
+                                data-custom-prop-ad_source="home"
+                                :data-custom-prop-ad_code="
+                                    advertisingBanner.ad_code
+                                "
+                                :data-custom-prop-ad_nike_name="
+                                    advertisingBanner.ad_nike_name
+                                "
+                                :data-custom-prop-ad_number="
+                                    advertisingBanner.ad_number
+                                "
+                                :data-custom-prop-ad_keyword="
+                                    advertisingBanner.project_name
+                                "
+                                @click.stop="
+                                    goToUrlHandle(advertisingBanner.url)
+                                "
+                            >
+                                <image
+                                    :src="advertisingBanner.image"
+                                    mode="widthFix"
+                                />
+                            </view>
+                        </view>
+                    </view>
+                </view>
+
+                <!-- 广告浮窗 -->
+                <AdFloatWindow
+                    v-if="isAdOpen"
+                    class="skeletons-rect"
+                    :bottom="AdFloatWindowBottom"
+                    :adFloatWindowImg="adFloatWindowImg"
+                    :adFloatWindowUrl="adFloatWindowUrl"
+                />
+            </view>
+            <!--新手指引-->
+            <view
+                v-if="guideImg.length > 0"
+                class="guide"
+                catchtouchmove="stopMove"
+            >
+                <image
+                    lazy-load="true"
+                    :src="guideImg[guideImgIndex]"
+                    mode="widthFix"
+                    class="backImg gray-bg"
+                    :style="'z-index:' + (100 - guideImgIndex) + ';'"
+                    @click.stop="nextGuideImage"
+                />
+            </view>
+        </view>
+    </ShareTimelineLayout>
 </template>
 
 <script>
-import api from "@/api";
-import brandSelector from './brandDataSelector'; // 选择品牌
-import PropertyConpanySelector from './PropertyConpanySelector.vue'; // 物业公司
-import DeveloperSeletor from './DeveloperSeletor.vue'; // 开发商
-import BizCircleSelector from './BizCircleSelector.vue';
+    import URI from 'urijs';
+    import BaseBanner from '@/components/BaseBanner';
+    import ProjectItem from '@/components/ProjectItem/ProjectItem';
+    import RiskManagement from '@/plugin/riskManagement';
+    import BusiNavHeader from '@/components/UILayout/BusiNavHeader';
+    import BusiSearchSwiper from '@/pages/components/BusiSearchSwiper.vue';
+    import ListPreview from '@/pages/components/ListPreview.vue';
+    import BusiSearch from '../components/UILayout/BusiSearch.vue';
+    import api from '../api/api';
+    import { share } from '../utils/utilsKit/index';
+    import { transformDeviceUnit, pageJump } from '../utils/util';
+    import MiniSalesCard from '../components/MiniSalesmanCard.vue';
+    import BaseAddMiniApp from '../components/BaseAddMiniApp.vue';
+    import AddDesktop from './components/AddDesktop.vue';
+    import AdFloatWindow from '../components/AdFloatWindow.vue';
 
-let that = null;
-export default {
-    name: "ProjectEdit",
-    components: {
-        brandSelector,
-        PropertyConpanySelector,
-        DeveloperSeletor,
-        BizCircleSelector
-    },
-    filters:{
-        typeFilter(val){
-            return {'1':'静态','2':'动态','3':'API'}[val];
-        },
-        status(val){
-            return  {0:'待售',10:'即将预售',20:'在售',30:'售罄'}[val];
-        },
-        filterParam(val,filed){
-            const item = that[filed].find((item)=>{
-                return item.value == val;
-            });
+    import BusiCube from './components/BusiCube.vue';
+    import BusiColumn from './components/BusiColumn.vue';
+    import BusiGrid from './components/BusiGrid.vue';
+    import BusiNews from './components/BusiNews.vue';
+    import HomeProjectItem from '../components/HomeProjectItem.vue';
+    import BusiActivity from './components/BusiActivity.vue';
+    import ShareTimelineLayout from '../components/ShareTimelineLayout.vue';
+    // import ThirdArticleVue from '../subPackages/discovery/component/ThirdArticle.vue';
 
-            return item ? item.text:'';
+    const globalModel = require('../models/GlobalModel');
+
+    const titleStr = {
+        chengdu: '最新取证',
+        hangzhou: '正在公示',
+        nanjing: '最新销许',
+        wuhan: '交资料中'
+    };
+
+    export default {
+        components: {
+            BusiNavHeader,
+            MiniSalesCard,
+            BaseAddMiniApp,
+            AddDesktop,
+            AdFloatWindow,
+            BusiGrid,
+            BaseBanner,
+            BusiCube,
+            BusiColumn,
+            BusiNews,
+            ProjectItem,
+            BusiActivity,
+            HomeProjectItem,
+            BusiSearch,
+            BusiSearchSwiper,
+            ShareTimelineLayout,
+            ListPreview
         },
-        district(val){
-            return 44;
-        }
-    },
-    data() {
-        return {
-            loading: true,
-            type: 1, // 1 静态 2 动态
-            id:'',
-            detail:{},
-            projects:[],
-            filterParam:{
-                district_id:[],
-                price:'',
-                total_price:'',
-                square:[],
-                is_decorated:'',
-                property_type:[],
-                status:'',
-                trademark_id: [],
-                metro_id:[], // 地铁
-                not_deficiency:[], // 特色功能
-                property_company:[], // 物业公司
-                developer:[], // 开发商
-                biz_circle_id:[], // 商圈
+
+        data() {
+            const grids = uni.getStorageSync('index_grid_cache');
+            const top = uni.getStorageSync('index_top_cache');
+            const themeType = uni.getStorageSync('index_theme_type');
+
+            // 获取statusBarHeight
+            const info = uni.getSystemInfoSync();
+            const navHeight = info.statusBarHeight + 44;
+            const { statusBarHeight } = info;
+            // 6 = (44:titlebar 的高 - 32胶囊的高) / 2
+            const height = info.windowHeight - navHeight + 6;
+            const cube = uni.getStorageSync('index_cube_cache');
+
+            return {
+                customUrl: '/subPackages/project/pages/mapLookHouse',
+                leftcustomUrl: '/subPackages/news/pages/morningPaper',
+                hotSearchList: {
+                    list: [],
+                    config: {}
+                },
+                scrollPage: false,
+                upDataCotent: '',
+                showUpdataView: false,
+                inputShowed: false,
+                midInputPlace: '',
+
+                type: 1,
+                banners: {
+                    list: [{}],
+                    config: {}
+                },
+                // 首页banner
+                top: top || new Array(5).fill({ skeleton: true }),
+                // 宫格
+                grids: grids || new Array(10).fill({ skeleton: true }),
+                // 统计数部分
+                // 导航图标
+                isAdOpen: false,
+                AdFloatWindowBottom: '24rpx',
+                adFloatWindowImg: '',
+                // 广告浮窗图片
+                adFloatWindowUrl: '',
+                // 头条新闻
+                listData: [{ skeleton: true }],
+                sales_man_data: [],
+                recommend_rule: '',
+                recommendBanners: {
+                    list: [{ skeleton: true }],
+                    config: {}
+                },
+                // 楼盘、优质推荐切换
+                tabIndex: 1,
+                recommendList: [],
+                tabContent: [],
+                tabContentNew: [],
+                isShow: false,
+                second: '', // 广告默认展示3秒
+                timer: null,
+                advertisingBanner: {},
+                // 添加我的小程序弹窗
+                hideTip: true,
+                // 新手指引
+                guideImg: [],
+                guideImgIndex: 0,
+                guideShow: false,
+                is_sales_man_id: '',
+                upDataVersion: '',
+                controlModle: [],
+                showAddDesktop: false,
+                // 显示是否添加到桌面/浮窗
+                showAddMyProgram: false,
+                // 显示添加到我的小程序弹窗;
+                showedAddMyprogram: false,
+                // 今天是否显示过了‘添加到我的小程序’了
+                latestOpeningObj: {
+                    // eslint-disable-next-line dot-notation
+                    titleStr: titleStr['__CITY_NAME__'],
+                    // eslint-disable-next-line dot-notation
+                    url: `/pages/latestOpeningMore/index?type=10&title=${titleStr['__CITY_NAME__']}`,
+                    // eslint-disable-next-line dot-notation
+                    param: `${titleStr['__CITY_NAME__']}-更多`
+                },
+                // 栏目
+                sections: [],
+                sectionsUpdate: true,
+                // 魔方（默认占位图）
+                cube: cube || {
+                    code: 'skeletons',
+                    style_name: 'penta_cube',
+                    detail: new Array(5).fill({ skeleton: true })
+                },
+                // 活动
+                activity: null,
+                isShowActivity: false,
+                // 点击底部首页bar 触发回到顶部
+                isLeave: false,
+                isShareShow: true,
+                shareHide: null,
+                shareShow: null,
+                marginTop: transformDeviceUnit(navHeight - 2),
+                adWrapHeight: height,
+                shareTimelineParam: {},
+                opacityTop: 0,
+                statusBarHeight: `${transformDeviceUnit(statusBarHeight)}`,
+                themeType: themeType || 'default'
+            };
+        },
+
+        computed: {
+            inputPlace() {
+                return this.midInputPlace;
             },
-            param: {
-                type: '',
-                lowPrice:'',
-                hightPrice:'',
-                lowTotal_price:'',
-                hightTotal_price:'',
-                priceType:'1',
+
+            isNewYearTheme() {
+                return this.themeType === 'new_year';
             },
-            listParam:{
-                page:1,
-                size:8,
-                keyword:''
+
+            is100YearsParty() {
+                return this.themeType === '100_year_party';
             },
-            conditions:[],
-            checkAreaAll:false,
-            checkSquareAll:false,
-            checkMetroAll:false,
-            checkPropertyAll:false,
-            checkSpecialAll:false,
-            priceOrigin:[],
-            total_priceOrigin:[],
-            price:[],
-            total_price:[],
-            square:[],
-            metro_id:[],
-            property_company:[],
-            not_deficiency:[],
-            district_id:[],
-            biz_circle_id:[],
-            is_decorated:[],
-            status:[],
-            developer:[],
-            property_type:[],
-            filteState:{},
-            projectList: [],
-            dialogVisible: false,
-            originPrice: '',
-            originTotalPrice: '',
-            // 品牌的选择列表
-            trademarkList: [],
-            propertyCompanyList:[],
-            developerList:[],
-            bizCircleList:[]
-        };
-    },
-    watch:{
-        'filterParam.district_id'(next,prev){
-            if (Array.isArray(next) && Array.isArray(prev)) {
-                // 这里如果next为空数组也要调用接口，用来清空商圈列表
-                // 第二个参数用来判断如果是取消勾选某个区域，联动取消区域下商圈
-                this.$refs.biz_circle_id.getBizList(next,next.length<prev.length);
+
+            hasShowHotRecommend() {
+                return (
+                    this.controlModle[1]
+                    && this.controlModle[1].module === 'hot_recommend'
+                    && Math.floor(this.controlModle[1].is_show) === 1
+                    && this.recommendList.length > 0
+                );
+            }
+        },
+
+        watch: {
+            '$store.state.system.searchPlaceholder': {
+                handler() {
+                    this.midInputPlace = this.$store.state.system.searchPlaceholder;
+                },
+                immediate: true
+            }
+        },
+
+        onShareAppMessage() {
+            return share.share('我在这里查摇号结果，好方便哦', '/pages/index');
+        },
+
+        onHide() {
+            this.isLeave = true;
+        },
+
+        onShow() {
+            // 更新红点逻辑
+            this.$store.dispatch('chat/getUnReadMessage');
+            this.$store.dispatch('chat/getUnReadCustomerMessage');
+        },
+
+        onPullDownRefresh() {
+            this.reload();
+            uni.stopPullDownRefresh();
+        },
+
+        onReachBottom() {
+            if (this.$refs.column) {
+                this.$refs.column.reachBottom();
+            }
+        },
+
+        onPageScroll(e) {
+            const { scrollTop } = e;
+            if (this.isNewYearTheme && this.$refs.busiNavHeader) {
+                this.setNavHeader(scrollTop);
+            }
+            if (this.$refs.column) {
+                this.$refs.column.scrollTop = scrollTop;
             }
 
-        }
-    },
-    beforeCreate(){
-        that = this;
-    },
-    async mounted() {
-        this.id = this.$route.query.id || '';
-        this.loadFilters();
-        this.price = [
-            {text:'价格不限',value:'0,99999999'},
-            {text:'7000以下',value:'0,7000'},
-            {text:'7000-10000元㎡',value:'7000,10000'},
-            {text:'10000-15000元㎡',value:'10000,15000'},
-            {text:'15000-20000元㎡',value:'15000,20000'},
-            {text:'20000元㎡以上',value:'20000,99999999'}
-        ];
-        this.priceOrigin = [...this.price];
+            if (this.$refs.share) {
+                this.$refs.share.pageScroll(e);
+            }
 
-        this.total_price = [
-            {text:'价格不限',value:'0,99999'},
-            {text:'50万元以下',value:'0,500000'},
-            {text:'50-100万元',value:'50,100'},
-            {text:'100-150万元',value:'100,150'},
-            {text:'150-200万元',value:'150,200'},
-            {text:'200-250万元以上',value:'200,99999'},
-        ];
-        this.total_priceOrigin = [...this.total_price];
+            // 滚动修改navheader样式
+            if (e.scrollTop > 12) {
+                this.scrollPage = true;
+            } else {
+                this.scrollPage = false;
+            }
+        },
 
-        this.square = [
-            {text:'50㎡以下',value:'0,50'},
-            {text:'50㎡-70㎡',value:'50,70'},
-            {text:'70㎡-90㎡',value:'70,90'},
-            {text:'90㎡-110㎡',value:'90,110'},
-            {text:'110㎡-130㎡',value:'110,130'},
-            {text:'130㎡-150㎡',value:'130,150'},
-            {text:'150㎡以上',value:'150,999999'},
-        ];
+        onShareTimeline() {
+            return share.shareTimeline(
+                this.shareTimelineParam.title,
+                {
+                    shareTimeline: this.shareTimelineParam.content_image
+                },
+                this.shareTimelineParam.share_image
+            );
+        },
 
-        this.trademark_id = [];
-        this.getMetro();
-        this.getUserFilter();
-    },
-    methods: {
-        // 获取地铁线路
-        async getMetro(){
-            let metroData = await api.project.metroLine({page: 1,page_size: 200});
-            if (metroData && metroData.data) {
-                this.metro_id = metroData.data.data.map(e=>({
-                    text:e.name,
-                    value:e.id
+        onTabItemTap() {
+            this.hideTip = globalModel.isAddMyProgram();
+            if (this.isLeave) {
+                this.isLeave = false;
+            } else {
+                uni.pageScrollTo({
+                    scrollTop: 0,
+                    duration: 0
+                });
+                this.reload();
+            }
+        },
+        mounted() {
+            this.themeInit();
+        },
+
+        async onLoad(options) {
+            if (options.hid) {
+                const res = await api.getDecodeHashParams(options.hid);
+                if (res && res.data) {
+                    options = res
+                        ? URI(`?${decodeURIComponent(res.data.path)}`).search(true)
+                        : options;
+                }
+            }
+
+            // 如果有跳转链接就直接跳转
+            if (options.redirect) {
+                // 在风控类内部进行重定向
+                const riskInstance = new RiskManagement(options);
+                riskInstance.check();
+            }
+
+            // 控制添加我的小程序
+            this.hideTip = globalModel.isAddMyProgram();
+
+            this.firstPageLoad()
+                .then(() => this.secondPageLoad())
+                .then(() => this.threePageLoad())
+                .then(() => this.lastPageLoad())
+                .then(() => this.$nextTick(() => {
+                    this.loadIsSalesMan();
+                    this.loadUIActivity();
+                    this.loadGuide();
+                    this.showAD();
+
+                    api.getShareTimelineParam('index').then(res => {
+                        if (res.data) {
+                            this.shareTimelineParam = res.data;
+                        }
+                    });
                 }));
-            }
-
-
         },
-        // 获取特色功能
-        getUserFilter() {
-            let filterField = ['not_deficiency','is_decorated'];
-            api.newProject.microProjectGetfilter({type: ''}).then( ({data}) => {
-                if (data) {
-                    data.forEach((item => {
-                        if (filterField.includes(item.field_name)) {
-                            this[item.field_name] = item.field_value.map(e=>({
-                                text:e.label,
-                                value:e.value
-                            }));
-                        }
-                    }));
+
+        methods: {
+            setNavHeader(scrollTop) {
+                if (this.isNewYearTheme) {
+                    this.opacityTop = scrollTop / 44 >= 1 ? 1 : (scrollTop / 44).toFixed(1);
                 }
+            },
+            emptyFunction() {},
 
-            });
-        },
-        // 当页全选按钮
-        async selectCurrentPage() {
-            const param = this.projectList.data.map(_ => {
-                return {
-                    id: _.id,
-                    sort: 0
-                };
-            });
-            const { data } = await api.content.collectionsProjects(this.id, {projects: param});
-            this.projects = data.projects.map(item=>item.pivot.project_id);
-            this.$message({
-                showClose: true,
-                message: "当页全选成功",
-                type: "success"
-            });
-            this.loadList();
-        },
-        goAdd(){
-            this.$router.push(`projectCollEdit`);
-        },
-        reset(){
-            this.param = {
-                keyword: "",
-                type:'',
-                status:'',
-                page: 1,
-                size: 8
-            };
-        },
-        checkProjects(row){
-            const param = {
-                projects:[{
-                    id:row.id,
-                    sort:0
-                }]
-            };
-            api.content.collectionsProjects(this.id, param).then(({data})=>{
-                this.projects = data.projects.map(item=>item.pivot.project_id);
-                this.loadList();
-            });
-        },
-        delProjects(row){
-            const param = {
-                projects:[{
-                    id:row.id
-                }]
-            };
-            api.content.collectionsProjectsDelete(this.id,param).then(({data})=>{
-                this.projects = data.projects.map(item=>item.pivot.project_id);
-                this.loadList();
-            });
-        },
-        loadList(){
-            this.loading = true;
+            themeInit() {
+                // if (this.isNewYearTheme && this.$refs.busiNavHeader) {
+                //     this.$refs.busiNavHeader.setTransparentMode();
+                // } else {
+                //     this.$refs.busiNavHeader.setWhiteMode();
+                // }
+                if (this.$refs.busiNavHeader) {
+                    this.$refs.busiNavHeader.setTransparentMode();
+                }
+            },
 
-            api.content.collectionsDetailList(this.id,this.listParam)
-                .then(({ data }) => {
-                    this.projectList = data;
-                    this.loading = false;
+            closeHandle() {
+                // 关闭弹窗，显示分享按钮
+                this.isShowActivity = false;
+            },
+
+            addMyProgramHandle() {
+                setTimeout(() => {
+                    this.showedAddMyprogram = true;
+                }, 1500);
+            },
+
+            jumpUrlHandle(url) {
+                uni.showLoading({
+                    title: '',
+                    mask: true
                 });
-        },
-        loadFilters(){
-            api.project.filterProject().then(({data})=>{
-                for (let key in data.area_id.mapping) {
-                    if(key > 0) {
-                        this.district_id.push({ text: data.area_id.mapping[key], value: key });
+
+                const self = this;
+                uni.navigateTo({
+                    url,
+                    complete() {
+                        self.hideLoading();
                     }
-                }
+                });
+            },
 
-                // const mapProperty = {'住宅':1,'商业':2,'别墅':3};
-                for(const key in data.property_class.mapping) {
-                    this.property_type.push({ text: data.property_class.mapping[key], value: key });
-                }
+            closeUpdateHandle() {
+                this.showUpdataView = false;
+            },
 
-                // const map = {'未知':0,'在售':1,'待售':2,'已清盘':3};
-                for(const key in data.status.mapping) {
-                    this.status.push({ text: data.status.mapping[key], value: key });
+            nextGuideImage() {
+                const next = this.guideImgIndex + 1;
+                if (!this.guideImg[next]) {
+                    this.closeDirectHandle();
+                    return;
                 }
+                this.guideImgIndex += 1;
+            },
 
-                this.loadNext();
-            });
-        },
-        loadNext() {
-            this.loading = true;
-            // 合集详情
-            api.content.collectionsDetail(this.id)
-                .then(({ data }) => {
-                    this.detail = data;
-                    // 获取楼盘合集是静态还是动态
-                    this.type = data.type;
-                    this.projects = data.projects.map(item=>item.pivot.project_id);
-                    data.conditions.forEach((item)=>{
-                        this.filteState[item.field] = item.id;
-                        if(Object.prototype.toString.call(this.filterParam[item.field]) != '[object String]' ){
-                            this.filterParam[item.field] = item.value.map(per=>per.value);
-                            // 组装数据 trademark_id
-                            item.name === '选择品牌' && (this.trademark_id = item.value);
-                            if (item.name === '物业公司') {
-                                this.propertyCompanyList = item.value;
-                                this.property_company = item.value;
+            closeDirectHandle() {
+                this.guideImg = [];
+            },
+
+            // 500ms 解决微信7.0.10bug
+            hideLoading() {
+                setTimeout(() => {
+                    uni.hideLoading();
+                }, 500);
+            },
+
+            goToUrlHandle(url) {
+                this.isShow = false;
+                pageJump(url);
+            },
+
+            closeHideHandle() {
+                this.isShow = false;
+            },
+
+            swiperNavHandle(url) {
+                pageJump(url);
+            },
+
+            /**
+             * 首屏加载逻辑
+             * 1. 加载首页banner、金刚区按钮、魔方
+             * 2. 渲染金刚区 + 魔方
+             * 3. 等第2步渲染完，再渲染banner
+             * 4. 加载滚动条词
+             */
+            firstPageLoad() {
+                return new Promise(resolve => {
+                    Promise.all([
+                        api.getBanner('home-top-banner'), // 首页 banner
+                        api.indexPage.topGrids(), // 金刚区按钮
+                        api.cubeDetail({ location: 'home' }) // 魔方
+                    ])
+                        .then(results => {
+                            const [
+                                homeTopBannerRes,
+                                topGridsRes,
+                                cubeRes
+                            ] = results;
+
+                            if (topGridsRes && topGridsRes.data) {
+                                this.top = topGridsRes.data.top;
+                                this.grids = topGridsRes.data.grids;
+
+                                // 将top和grids做一个缓存
+                                uni.setStorage({
+                                    key: 'index_grid_cache',
+                                    data: this.grids
+                                });
+                                uni.setStorage({
+                                    key: 'index_top_cache',
+                                    data: this.top
+                                });
                             }
-                            if (item.name === '开发商') {
-                                this.developerList = item.value;
-                                this.developer = item.value;
+
+                            if (cubeRes.data) {
+                                this.cube = cubeRes.data;
+                                uni.setStorage({
+                                    key: 'index_cube_cache',
+                                    data: this.cube
+                                });
                             }
-                            if (item.name === '商圈') {
-                                this.bizCircleList = item.value;
-                                this.biz_circle_id = item.value;
+
+                            this.$nextTick(() => {
+                                this.banners = homeTopBannerRes.data;
+
+                                // 请求滚动词的新接口
+                                api.getBanner('search--search').then(searchRes => {
+                                    if (searchRes && searchRes.data) {
+                                        this.hotSearchList = searchRes.data;
+                                    }
+                                });
+                            });
+
+                            resolve();
+                        })
+                        .catch(resolve);
+                });
+            },
+
+            /**
+             * 第二屏加载逻辑
+             * 1. 加载热门推荐、头条、推荐置业顾问、规则等
+             */
+            secondPageLoad() {
+                return new Promise(resolve => {
+                    Promise.all([
+                        api.getBannerProjectList({ page: 1, size: 4 }), // 热门推荐
+                        api.indexPage.indexConfig() // 头条、推荐置业顾问数据、推荐规则
+                    ])
+                        .then(results => {
+                            const [recommendProjectRes, indexConfigRes] = results;
+                            //  把小团头条的列表和销许预告的列表合并在一起，且优先展示销许的
+                            this.listData = [
+                                ...(indexConfigRes?.data?.sale_advances || []).map(e => ({
+                                    ...e,
+                                    titleType: 'sale_advances',
+                                    iconUrl: indexConfigRes?.data?.icon?.sale_advance || 'https://imgcdn.huanjutang.com/assets/img/2021891049538081.png'
+                                })),
+                                ...(indexConfigRes?.data?.announcement || []).map(e => ({
+                                    ...e,
+                                    titleType: 'announcement',
+                                    iconUrl: indexConfigRes?.data?.icon?.announcement || 'https://imgcdn.huanjutang.com/assets/img/2021891049308081.png'
+                                })),
+                            ];
+
+                            if (recommendProjectRes.data) {
+                                const recommendProjects = recommendProjectRes.data
+                                    .list
+                                    ? recommendProjectRes.data.list
+                                    : []; // 热门推荐
+                                this.recommendList = recommendProjects;
+                                this.tabContentNew = recommendProjects.slice(0, 1);
+                                this.tabContent = recommendProjects.slice(1);
                             }
-                        } else {
-                            if(!item.value[0]){
-                                return;
-                            }
-                            // 处理价格 万元
-                            if(item.field === 'total_price'){
-                                const tp = item.value[0].value.split(',').map(item=>item/10000).join(',');
-                                if(!this.total_priceOrigin.find(item=>item.value == tp) ){
-                                    this.total_price.push({
-                                        text:`自定义总价${tp.replace(/,/i,'-')}万元`,
-                                        value:tp
+
+                            // 等待热门推荐加载完再加载推荐置业顾问
+                            this.$nextTick(() => {
+                                resolve();
+                                this.sales_man_data = indexConfigRes.data.sales_man_data || [];
+                                this.recommend_rule = indexConfigRes.data.recommend_rule;
+                            });
+                        })
+                        .catch(resolve);
+                });
+            },
+
+            threePageLoad() {
+                return new Promise(resolve => {
+                    Promise.all([
+                        api.getBanner('home-tinny-banner'), // 推荐banner
+                        api.section.section() // 栏目
+                    ])
+                        .then(results => {
+                            const [smallBannerRes, sectionsRes] = results;
+
+                            this.sectionsUpdate = false;
+                            this.sections = sectionsRes.data;
+
+                            this.$nextTick(() => {
+                                resolve();
+                                this.recommendBanners = smallBannerRes.data;
+                                this.sectionsUpdate = true;
+                            });
+                        })
+                        .catch(resolve);
+                });
+            },
+
+            lastPageLoad() {
+                Promise.all([
+                    api.getlotActivity(), // 加载活动
+                    api.mapSetting(), // 加载主题
+                    api.indexBoxIsShow() // 加载页面控制开关
+                ]).then(results => {
+                    const [activityRes, settingsRes, controlRes] = results;
+
+                    // 缓存主题
+                    if (settingsRes.data && settingsRes.data.theme_type) {
+                        this.themeType = settingsRes.data.theme_type;
+                        uni.setStorage({
+                            key: 'index_theme_type',
+                            data: this.themeType
+                        });
+                        this.themeInit();
+                    }
+
+                    // 活动浮窗
+                    if (activityRes.data && activityRes.data.suspend_bottom) {
+                        this.isAdOpen = !Array.isArray(activityRes.data);
+                        this.adFloatWindowImg = activityRes.data.suspend_bottom.img[0] || '';
+                        this.adFloatWindowUrl = activityRes.data.suspend_bottom.url;
+                    }
+
+                    if (controlRes && controlRes.data) {
+                        this.controlModle = controlRes.data || [];
+                    }
+                });
+            },
+
+            async reload() {
+                uni.showLoading({
+                    title: '加载中...'
+                });
+
+                this.firstPageLoad()
+                    .then(() => this.secondPageLoad())
+                    .then(() => this.threePageLoad())
+                    .then(() => this.lastPageLoad());
+
+                uni.hideLoading();
+            },
+
+            loadGuide() {
+                api.getGuideImage('app_index').then(guideImages => {
+                    this.guideImg = guideImages.data; // 引导
+                });
+            },
+
+            loadIsSalesMan() {
+                api.isSaleMan().then(isSaleMan => {
+                    this.is_sales_man_id = isSaleMan.sales_man_id || '';
+                });
+            },
+
+            async loadUIActivity() {
+                const [middle, hover] = await Promise.all([
+                    api.getBanner('home-middle-banner'),
+                    api.getBanner('home--hover')
+                ]);
+                const middleBanner = middle.data || { list: [], config: {} };
+                let hoverBanner = null;
+
+                if (
+                    hover.data
+                    && Array.isArray(hover.data.list)
+                    && hover.data.list.length > 0
+                ) {
+                    [hoverBanner] = hover.data.list;
+                }
+                this.activity = {
+                    middleBanner,
+                    hoverBanner
+                };
+                if (this.activity.hoverBanner) {
+                    this.isShowActivity = true;
+                }
+            },
+
+            showAD() {
+                api.getBanner('home--mask').then(res => {
+                    const self = this;
+                    if (
+                        res.data
+                        && Array.isArray(res.data.list)
+                        && res.data.list.length > 0
+                    ) {
+                        const advertisingBanner = res.data.list[0];
+                        uni.downloadFile({
+                            url: advertisingBanner.image,
+                            success(downloadRes) {
+                                self.advertisingBanner = {
+                                    ...advertisingBanner,
+                                    image: downloadRes.tempFilePath
+                                };
+                                self.isShow = true;
+                                if (
+                                    res.data.config
+                                    && res.data.config.stay_duration
+                                ) {
+                                    // 倒计时
+                                    self.second = Math.round(
+                                        res.data.config.stay_duration
+                                    );
+                                    self.timer = setInterval(() => {
+                                        if (self.second === 0) {
+                                            clearInterval(self.timer);
+                                            self.timer = null;
+                                            self.isShow = false;
+                                        }
+                                        self.second -= 1;
+                                    }, 1000);
+
+                                    self.$once('hook:beforeDestory', () => {
+                                        self.timer = null;
                                     });
-                                    this.param.lowTotal_price = tp.split(',')[0];
-                                    this.param.hightTotal_price = tp.split(',')[1];
-                                    this.filterParam[item.field] = tp;
-                                }else {
-                                    this.filterParam[item.field] = tp;
-                                }
-                            } else if(item.field === 'price'  ){
-                                let tp =  item.value[0].value;
-                                if(!this.priceOrigin.find(item=>item.value == tp) ){
-                                    this.price.push({
-                                        text:`自定义单价${tp.replace(/,/i,'-')}元㎡`,
-                                        value:tp
-                                    });
-                                    this.param.lowPrice = tp.split(',')[0];
-                                    this.param.hightPrice = tp.split(',')[1];
-                                    this.filterParam[item.field] = tp;
-                                }else {
-                                    this.filterParam[item.field] = tp;
                                 }
                             }
-                            else {
-                                this.filterParam[item.field] = item.value[0].value;
-                            }
-                        }
-                    });
-                    this.loading = false;
-                });
-            this.loadList();
-        },
-        deleteCol(id) {
-            this.$confirm("是否确定停用?", "提示", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
-                type: "warning"
-            }).then(() => {
-                api.content
-                    .cubeStop({ id: id })
-                    .then(() => {
-                        this.$message({
-                            showClose: true,
-                            message: "停用成功",
-                            type: "success"
                         });
-                        this.loadNext();
-                    })
-                    .catch(() => {
-                        this.$message({
-                            showClose: true,
-                            message: "停用失败",
-                            type: "error"
-                        });
-                    });
-            });
-        },
-        startCol(id){
-            this.$confirm("是否确定启用?", "提示", {
-                confirmButtonText: "确定",
-                cancelButtonText: "取消",
-                type: "warning"
-            }).then(() => {
-                api.content
-                    .cubeStart({ id: id })
-                    .then(() => {
-                        this.$message({
-                            showClose: true,
-                            message: "启用成功",
-                            type: "success"
-                        });
-                        this.loadNext();
-                    })
-                    .catch(() => {
-                        this.$message({
-                            showClose: true,
-                            message: "启用失败",
-                            type: "error"
-                        });
-                    });
-            });
-        },
-        switchPrice(val) {
-            if(parseInt(val) === 1) {
-                if(this.filterParam.total_price) {
-                    this.originTotalPrice = this.filterParam.total_price;
-                }
-                this.filterParam.total_price = '';
-                this.filterParam.price = this.originPrice;
-                if( this.filterParam.price) {
-                    this.deleteData('total_price').then(() => {
-                        this.saveCollect('price');
-                    });
-                }
-            } else {
-                if(this.filterParam.price) {
-                    this.originPrice = this.filterParam.price;
-                }
-                this.filterParam.price = '';
-                this.filterParam.total_price = this.originTotalPrice;
-                if( this.filterParam.total_price) {
-                    this.deleteData('price').then(() => {
-                        this.saveCollect('total_price');
-                    });
-                }
-            }
-        },
-        // 操作下拉的选择
-        handelUpdateIds(type) {
-            this.saveCollect(type);
-        },
-        handelPriceChange(){
-            // 自动补齐的功能
-            if(this.param.lowPrice.trim() == '' && this.param.hightPrice.trim()!='') {
-                this.param.lowPrice = '0';
-            }
-            if(this.param.priceType == 1) {
-                if(this.param.lowPrice.trim()!='' && this.param.hightPrice.trim()!=''){
-                    this.price = [...this.priceOrigin];
-                    this.price.push({
-                        text:`自定义单价${this.param.lowPrice}-${this.param.hightPrice}元㎡`,
-                        value:`${this.param.lowPrice},${this.param.hightPrice}`
-                    });
-                    this.filterParam.price = `${this.param.lowPrice},${this.param.hightPrice}`;
-                    this.deleteData('total_price').then(() => {
-                        this.saveCollect('price');
-                    });
-                }else{
-                    this.filterParam.price = '';
-                    this.price = [...this.priceOrigin];
-                }
-            }else {
-                if(this.param.lowTotal_price.trim()!='' && this.param.hightTotal_price.trim()!=''){
-                    this.total_price = [...this.total_priceOrigin];
-                    this.total_price.push({
-                        text:`自定义总价${this.param.lowTotal_price}-${this.param.hightTotal_price}万元`,
-                        value:`${this.param.lowTotal_price},${this.param.hightTotal_price}`
-                    });
-                    this.filterParam.total_price = `${this.param.lowTotal_price},${this.param.hightTotal_price}`;
-                    this.deleteData('price').then(() => {
-                        this.saveCollect('total_price');
-                    });
-                }else{
-                    this.filterParam.total_price = '';
-                    this.total_price = [...this.total_priceOrigin];
-                }
-            }
-        },
-        handleRemoveCondition(filed,value){
-            if(typeof this.filterParam[filed] == 'object'){
-                this.filterParam[filed].splice(this.filterParam[filed].findIndex((item)=>item.value == value),1);
-                filed === 'developer' && this.$refs.developer.handlerChange();
-                filed === 'property_company' && this.$refs.property_company.handlerChange();
-                filed === 'trademark_id' && this.$refs.trademark_id.handlerChange();
-                filed === 'biz_circle_id' && this.$refs.biz_circle_id.handlerChange();
-            }else {
-                this.filterParam[filed] = '';
-            }
-
-            this.saveCollect(filed);
-        },
-        handleCheckAreaAllChange() {
-            if(this.checkAreaAll){
-                this.filterParam.district_id = this.district_id.map(item=>item.value);
-            }else{
-                this.filterParam.district_id = [];
-            }
-
-            this.saveCollect('district_id');
-        },
-        handleCheckedAreaChange(value) {
-            let checkedCount = value.length;
-            this.checkAreaAll = checkedCount === this.district_id.length;
-            this.saveCollect('district_id');
-        },
-        handleCheckedPriceChange(){
-            this.deleteData('total_price').then(() => {
-                this.saveCollect('price');
-            });
-        },
-        handleCheckSpecialAllChange(){
-            if(this.checkSpecialAll){
-                this.filterParam.not_deficiency = this.not_deficiency.map(item=>item.value);
-            }else {
-                this.filterParam.not_deficiency = [];
-            }
-            this.saveCollect('not_deficiency');
-        },
-        handleCheckMetroAllChange(){
-            if(this.checkMetroAll){
-                this.filterParam.metro_id = this.square.map(item=>item.value);
-            }else {
-                this.filterParam.metro_id = [];
-            }
-            this.saveCollect('metro_id');
-        },
-        handleCheckedtotal_priceChange(){
-            this.deleteData('price').then(() => {
-                this.saveCollect('total_price');
-            });
-        },
-        handleCheckSquareAllChange() {
-            if(this.checkSquareAll){
-                this.filterParam.square = this.square.map(item=>item.value);
-            }else {
-                this.filterParam.square = [];
-            }
-            this.saveCollect('square');
-
-        },
-        handleCheckedSpecialChange(value){
-            let checkedCount = value.length;
-            this.checkSpecialAll = checkedCount === this.not_deficiency.length;
-            this.saveCollect('not_deficiency');
-        },
-        handleCheckedMetroChange(value){
-            let checkedCount = value.length;
-            this.checkMetroAll = checkedCount === this.square.length;
-            this.saveCollect('metro_id');
-        },
-        handleCheckedSquareChange(value) {
-            let checkedCount = value.length;
-            this.checkSquareAll = checkedCount === this.square.length;
-            this.saveCollect('square');
-        },
-        handleCheckedDecorateChange() {
-            this.saveCollect('is_decorated');
-        },
-        handleCheckPropertyAllChange() {
-            if(this.checkPropertyAll){
-                this.filterParam.property_type = this.property_type.map(item=>item.value);
-            }else {
-                this.filterParam.property_type = [];
-            }
-            this.saveCollect('property_type');
-
-        },
-        handleCheckedPropertyChange(value) {
-            let checkedCount = value.length;
-            this.checkPropertyAll = checkedCount === this.property_type.length;
-            this.saveCollect('property_type');
-        },
-        handleCheckedStatusChange() {
-
-            this.saveCollect('status');
-        },
-        async deleteData(type) {
-            this.filteState[type] && api.content.collectionConditionValuesDelte(this.filteState[type]).then(() => {
-                this.filteState[type] = '';
-            });
-        },
-        saveCollect(type){
-            // 增加is_all属性
-            const param = {
-                collection_id:this.id,
-                field:type,
-                is_customize: false,
-                is_multi: false,
-                is_all: false,
-                nameEn: '',
-                value:[]
-            };
-
-            switch(type){
-            case 'district_id':{
-                param.name = '区域';
-                param.value = this.district_id.filter((item)=>this.filterParam.district_id.includes(item.value));
-                break;
-            }
-            case 'price':{
-                param.name = '单价';
-                param.nameEn = 'price';
-                if(this.filterParam.price){
-                    param.value = [{text:'单价',value:this.filterParam.price}];
-                }else {
-                    param.value = [];
-                }
-                break;
-            }
-            case 'total_price':{
-                param.name = '总价';
-                param.nameEn = 'total_price';
-                if(this.filterParam.total_price){
-                    param.value = [{text:'总价',value:this.filterParam.total_price.split(',').map(item=>parseInt(item)*10000).join(',')}];
-                }else {
-                    param.value = [];
-                }
-                break;
-            }
-            case 'square':{
-                param.name = '面积';
-                param.nameEn = 'square';
-                param.id = 4;
-                param.value = this.square.filter((item)=>this.filterParam.square.includes(item.value));
-                break;
-            }
-            case 'metro_id':{
-                param.name = '地铁';
-                param.nameEn = 'metro_id';
-                param.value = this.metro_id.filter((item)=>this.filterParam.metro_id.includes(item.value));
-                break;
-            }
-            case 'not_deficiency':{
-                param.name = '特色功能';
-                param.nameEn = 'not_deficiency';
-                param.value = this.not_deficiency.filter((item)=>this.filterParam.not_deficiency.includes(item.value));
-                break;
-            }
-            case 'is_decorated':{
-                param.name = '装修';
-                param.nameEn = 'is_decorated';
-                param.value = this.is_decorated.filter((item)=>this.filterParam.is_decorated == item.value);
-                break;
-            }
-
-            case 'property_type':{
-                param.name = '物业';
-                param.nameEn = 'property_type';
-                param.value = this.property_type.filter((item)=>this.filterParam.property_type.includes(item.value));
-                break;
-            }
-            case 'status':{
-                param.name = '销售状态';
-                param.nameEn = 'status';
-                param.value = this.status.filter((item)=>this.filterParam.status == item.value);
-                break;
-            }
-            case 'trademark_id': {
-                param.name = '选择品牌';
-                param.nameEn = 'trademark_id';
-                param.value = this.trademarkList;
-                // 选择品牌的时候实现标签的添加
-                this.trademark_id = this.trademarkList;
-                break;
-            }
-            case 'property_company': {
-                param.name = '物业公司';
-                param.nameEn = 'property_company';
-                param.value = this.propertyCompanyList;
-                this.property_company = this.propertyCompanyList;
-                break;
-            }
-            case 'developer': {
-                param.name = '开发商';
-                param.nameEn = 'developer';
-                param.value = this.developerList;
-                this.developer = this.developerList;
-                break;
-            }
-            case 'biz_circle_id': {
-                param.name = '商圈';
-                param.nameEn = 'biz_circle_id';
-                param.value = this.bizCircleList;
-                this.biz_circle_id = this.bizCircleList;
-                break;
-            }
-            }
-            let isAll = true;
-            for (let key in this.filterParam) {
-                if (Object.prototype.toString.call(this.filterParam[key]) === '[object String]') {
-                    !this.filterParam[key] && (isAll = false);
-                }
-                if (Object.prototype.toString.call(this.filterParam[key]) === '[object Array]') {
-                    !this.filterParam[key].length && (isAll = false);
-                }
-            }
-            param.is_all = isAll;
-            // 保存筛选条件
-            if(this.filteState[type]){
-                // 编辑
-                api.content.collectionConditionValuesEdit(this.filteState[type],param).then(()=>{
-                    this.loadList();
-                    this.conditions.forEach(item=>{
-                        if(item.field == param.field){
-                            item.value = param.value;
-                        }
-                    });
-                });
-            }else {
-                // 新增
-                api.content.collectionConditionValuesAdd(param).then(({data})=>{
-                    this.filteState[type] = data.id;
-                    this.conditions.push(param);
-                    this.loadList();
+                    }
                 });
             }
-
-        },
-        back(){
-            // 静态点击完成编辑直接返回至合集列表，无弹窗
-            if (this.type == 1) {
-                this.$router.push({
-                    path:'/content/projectCollList/'
-                });
-            } else {
-                // 动态弹窗
-                this.dialogVisible = true;
-            }
-        },
-        submitBack() {
-            this.$router.push({
-                path:'/content/projectCollList/'
-            });
-        },
-        //分页
-        handleSizeChange(val) {
-            this.listParam.size = val;
-            this.loadList();
-        },
-        async handleCurrentChange(val) {
-            this.listParam.page = val;
-            this.loadNext();
         }
-    }
-};
+    };
 </script>
 
-<style scoped lang="scss">
-.flex {
+<style lang="scss">
+
+.page {
+    margin-top: 122rpx;
+    background: #fff;
+
+    >.activity__container {
+        position: relative;
+        z-index: 100;
+    }
+
+    >.grid-middle {
+        position: relative;
+        z-index: 2;
+    }
+}
+.main-container {
+    background: #115CEB;
+}
+.adertise-wrap {
+    width: auto;
+    height: auto;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.home__search {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 999;
+}
+
+.bannerModule {
+    position: relative;
+    padding: 0rpx 32rpx 0;
+    z-index: 1;
+}
+
+.activityModule {
+    margin: 32rpx 32rpx 0;
+}
+
+.recommendBanner {
+    padding: 0 32rpx;
+    margin-top: 32rpx;
+}
+
+.recommendBanner__swiper {
+    height: 136rpx;
+}
+
+.recommendBanner__swiper__img {
+    width: 100%;
+    height: 136rpx;
+    border-radius: 8rpx;
+}
+
+.recommendBanner__swiper__avr {
+    font-size: 18rpx;
+    line-height: 26rpx;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.3);
+    width: 50rpx;
+    height: 26rpx;
+    position: absolute;
+    right: 20rpx;
+    bottom: 15rpx;
+    z-index: 222;
+    border-radius: 1rpx;
+    opacity: 0.4;
+}
+.hot_recommend__list {
+    margin: 0 32rpx;
+}
+.columnModule {
+    border-top: 16rpx solid rgba(0, 0, 0, 0.03);
+    swiper-item {
+        box-sizing: border-box;
+        padding: 0 32rpx;
+    }
+}
+.cube {
+    margin: 32rpx 32rpx 0;
+}
+.news {
+    // margin: 12rpx 32rpx 0;
+    border-bottom: 16rpx solid rgba(0, 0, 0, 0.03);
+}
+</style>
+<style lang="scss">
+@import "../static/style/strangerGuide.scss";
+::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    color: transparent;
+}
+.relative {
+    position: relative;
+}
+
+/* 添加到我的小程序 */
+.tip-bg {
+    position: fixed;
+    left: 0;
+    top: 0;
+}
+
+/* 热门推荐样式 */
+.project-hot-new {
+    width: 100%;
+    overflow: hidden;
+}
+.project-hot-new .select-tab {
+    line-height: 1;
+    overflow: hidden;
+}
+.project-hot-new .select-tab .list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    float: left;
+    padding: 50rpx 0 24rpx;
+    width: 50%;
+    overflow: hidden;
+}
+.project-hot-new .select-tab .list .text {
+    padding-bottom: 15rpx;
+    color: #999 !important;
+}
+.project-hot-new .select-tab .list .line {
+    width: 60rpx;
+    height: 4rpx;
+    background-color: transparent;
+}
+.project-hot-new .select-tab .list.active .text {
+    color: #333 !important;
+}
+.project-hot-new .select-tab .list.active .line {
+    background-color: #3772cc;
+}
+
+/* 弹框广告 */
+.advertise-hide {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.65);
+    z-index: 10000;
+}
+.adertise-box {
+    width: 650rpx;
+    position: relative;
+    border-radius: 12rpx;
+    top: 0;
+}
+.adertise-box > .white-color {
+    font-size: 18rpx;
+    line-height: 1;
+    background: rgba(48, 50, 55, 0.4);
+    padding: 4rpx 8rpx;
+    position: absolute;
+    right: 24rpx;
+    bottom: 15rpx;
+    z-index: 999;
+    border-radius: 4rpx;
+}
+
+.advertise-hide .advertise {
+    width: 100%;
+    height: 100%;
+}
+.advertise_close-button {
+    position: absolute;
+    width: 120rpx;
+    height: 60rpx;
+    background: rgba(48, 50, 55, 0.4);
+    border-radius: 8rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 28rpx;
+    z-index: 999;
+    top: 24rpx;
+    right: 24rpx;
+    border: 2rpx solid rgba(255, 255, 255, 0.2);
+}
+.advertise {
+    border-radius: 20rpx;
+    position: relative;
+    z-index: 223;
+    overflow: hidden;
+}
+.advertise image {
+    width: 100%;
+    height: 100%;
+    display: block;
+}
+.select-title {
+    padding: 32rpx;
+    display: -webkit-box;
+    align-items: center;
+    display: flex;
+    justify-content: flex-start;
+    line-height: 1;
+    color: rgba(0, 0, 0, 0.85);
+    line-height: 52rpx;
+}
+.select-title--sb {
+    justify-content: space-between;
+}
+.select-title .new-tongyong-gengduo {
+    margin-left: 4rpx;
+    vertical-align: middle;
+}
+.select-title .new-wenhaocopy {
+    margin-left: 16rpx;
+    font-weight: 400rpx;
+}
+.select-title navigator > text {
+    vertical-align: middle;
+}
+/* 置业顾问样式 */
+.sales_man {
+    padding: 0 32rpx;
+    margin-bottom: 30rpx;
+    overflow: hidden;
+    border-top: 16rpx solid rgba(0, 0, 0, 0.03);
+}
+.sales_man .sales_man_cont {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    overflow: hidden;
+}
+.sales-man-title {
+    position: relative;
+    padding-left: 0;
+}
+
+/* 更新提示框 */
+.upDataBox {
+    display: -webkit-box;
+    /*-webkit-box-orient:horizontal;*/
+    -webkit-box-pack: center;
+    -webkit-box-align: center;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 222;
+}
+.showUpdata-bg {
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    left: 0;
+    background: rgba(0, 0, 0, 0.3);
+    top: 0;
+    z-index: 223;
+}
+.showUpdata {
+    width: 600rpx;
+    position: relative;
+    text-align: center;
+}
+.showUpdata image {
+    width: 100%;
+    border-radius: 8rpx;
+    left: 0;
+    top: 0;
+    position: relative;
+    z-index: 225;
+}
+.showUpdata .showUpdata-num {
+    padding-top: 140rpx;
+}
+.showUpdata-cont {
+    margin-top: 45rpx;
+}
+.showUpdata-btn {
+    margin-top: 105rpx;
+    height: 80rpx;
+    line-height: 80rpx;
+    border-radius: 80rpx;
+    border: 1rpx solid #f7776a;
+    display: inline-block;
+    color: #f7776a;
+    padding: 0 140rpx;
+    margin-bottom: 52rpx;
+}
+.showUpdata .upData-cont-box {
+    width: 600rpx;
+    background: #fff;
+    z-index: 224;
+    position: relative;
+    text-align: relative;
+    border-bottom-left-radius: 8rpx;
+    border-bottom-right-radius: 8rpx;
+    padding: 0rpx 70rpx 0;
+    box-sizing: border-box;
+    top: -60rpx;
+}
+.close-btn {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: -40rpx;
+    z-index: 225;
+    border: 1rpx solid #fff;
+    height: 64rpx;
+    line-height: 64rpx;
+    width: 64rpx;
+    text-align: center;
+    border-radius: 64rpx;
+}
+.page__bd {
+    margin-bottom: 0;
+    position: relative;
+    z-index: 220;
+}
+
+.nav-search__input {
+    font-size: 28rpx;
+    color: rgba(0, 0, 0, 0.45);
+    margin-left: 12rpx;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    font-weight: 500;
+    max-width: 404rpx;
+}
+
+.nav-search__icon {
+    width: 32rpx;
+    height: 32rpx;
+    margin-left: 28rpx;
+}
+
+.nav-search__map {
+    font-size: 32rpx;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.85);
+    margin-left: 6rpx;
+    line-height: 36rpx;
+}
+
+.nav-search__icon--map {
+    color: rgba(0, 0, 0, 0.85);
+    font-size: 40rpx;
+    font-weight: 500;
+    margin-left: 32rpx;
+}
+
+.nav-search-suspend-wrap{
+    position: absolute;
+    right: 0rpx;
+    margin: 14rpx 0;
+    height: 48rpx;
+    width: 88rpx;
+    top: 0;
     display: flex;
     align-items: center;
 }
-.flex-between {
-    justify-content: space-between;
+.nav-search-suspend-border{
+        height: 30rpx;
+        width: 2rpx;
+        background: #F2F2F2;
+    }
+.nav-search-suspend{
+    height: 48rpx;
+    width: 88rpx;
+    .nav-search-suspend-icon{
+        height: 48rpx;
+        width: 48rpx;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+    }
 }
-.w50 {
-    width:50px;
+.top-shadow {
+    height: 206rpx;
+    position: absolute;
+    top: -60rpx;
+    left: 0;
+    width: 100%;
 }
-.center {
-    text-align: center;
+.top-shadow-scroll {
+    height: calc(114rpx + var(--nav-header-h));
+    background: url('https://imgcdn.huanjutang.com/assets/img/20214211952328081.png');
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 200;
+    background-size: 100% 100%;
 }
-.app-container {
-    .common-search {
-        margin:0 10px;
-        padding: 0 0px 20px;
-        box-sizing: border-box;
-        border-bottom: 1px solid #e9e9e9;
-        .line {
-            width: 30px;
-            display: inline-block;
-            text-align: center;
+
+.year-100-party {
+    background: #BA1110 !important;
+    .search-bar__form {
+        &.search-bar__form--tabbar {
+            box-shadow: 0px 0px 20rpx 0px #E11D18 !important;
         }
     }
-    .el-pagination {
-        margin-top: 30px;
+    .top-shadow-scroll {
+        background: url('https://imgcdn.huanjutang.com/assets/img/20216301322488081.png');
+        background-size: 100% 100%;
     }
 }
 
-.top__nav {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px solid #f5f5f5;
-    margin: 0px 8px 30px;
-    padding:20px 8px
-}
-.top__tips{
-    font-size:14px;
-    margin-right: 20px;
-}
-.top__nav__title {
-    font-size: 28px;
-    font-weight: bold;
-}
-.filter {
-    margin:10px;
-}
-.filter__top {
-
-    font-size: 16px;
-    font-weight: bold;
-    margin: 20px 0;
-}
-.filter__main__title {
-    display: block;
-    text-align: right;
-    font-size: 14px;
-    font-weight: bold;
-}
-.filter__main_item {
-    padding:10px 0;
-}
-.check {
-    padding:25px;
-    border-bottom: 1px solid #e9e9e9;
-    border-top: 1px solid #e9e9e9;
-}
-.check__info {
-    font-size:12px;
-    color:#999;
-}
-.check__cont {
-    display:flex;
-    margin-top:10px;
-    flex-wrap:wrap;
-}
-.check__cont__item {
-    margin:10px 20px 0 0;
-    padding: 4px 5px 4px 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 14px;
-    color: #333;
-}
-.dialog-footer {
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    display: block;
-}
-.mb-20 {
-    margin-top: 20px;
-}
 </style>

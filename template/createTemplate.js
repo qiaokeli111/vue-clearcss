@@ -1,4 +1,6 @@
+const chalk = require('chalk');
 var cid = 0
+
 class createTemplate {
     constructor(typeDis, combinator,startHead,endTail,source) {
         this.typeDis = typeDis
@@ -22,7 +24,11 @@ class createTemplate {
         for (let i = 0; i < chain.length; i++) {
             const e = chain[i]
             if (e.type === 'combinator') {
-                this.source = this.combinator[e.value](this.source)
+                if (this.combinator[e.value]) {
+                    this.source = this.combinator[e.value](this.source)
+                } else {
+                    console.log(chalk.red(`该标识还没有做兼容。相关数据可能过滤有误 ${e.value}`));
+                }
             } else {
                 this.source = this.typeDis[e.type](e.value,this.source)
             }

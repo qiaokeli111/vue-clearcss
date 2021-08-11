@@ -1,7 +1,7 @@
 const compiler = require('vue-template-compiler')
 console.time(`aa`)
 var fs=require("fs");
-var data=fs.readFileSync("./test/aa.vue","utf-8");
+var data=fs.readFileSync("./test/bb.vue","utf-8");
 
 var res = compiler.parseComponent(data,{ pad: "space" })
 const htmlast = compiler.compile(res.template.content)
