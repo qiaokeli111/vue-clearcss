@@ -2,14 +2,12 @@
     <div
         id="app"
         class="aw"
-        :class="{
-            'main-container': true,
-            'newYear-theme': isNewYearTheme,
-            'year-100-party': is100YearsParty,
-        }"
-        
+        :sf="er"
+       :class="oo"
+       
     >
-        <div id="nav">
+        <div id="nav"  :class="['main-container',isNewYearTheme?'newYear-theme':'']"
+        >
             <router-link to="/">Home</router-link> |
             <router-link to="/about/ee">About</router-link>
             <div class="tt ss">
@@ -23,14 +21,33 @@
         <router-view />
     </div>
 </template>
+<script>
+export default {
+mounted() {
+
+},
+data() {
+ return {
+    isNewYearTheme:true,
+    oo:['main-container',isNewYearTheme?'newYear-theme':'']
+ };
+},
+methods: {
+
+},
+}
+</script>
 
 <style lang="scss">
 $width: 5em;
-#nav {
-    .ss {
-        .router-link-exact-active {
-            color: #42b983;
-        }
-    }
+[sf=44]{
+    color: #000;
 }
+// #nav {
+//     .ss {
+//         .router-link-exact-active {
+//             color: #42b983;
+//         }
+//     }
+// }
 </style>

@@ -2,16 +2,11 @@ let typeDis = {
     tag: (name, source) => `if(currentEle.tag === '${name}'){
                         ${source}
                     }`,
-    class: (
+    defaultDis:(
         name,
-        source
-    ) => `if(currentEle.attrsMap && matchEleAttr(currentEle.attrsMap.class, '${name}')){
-                        ${source}
-                    }`,
-    id: (
-        name,
-        source
-    ) => `if(currentEle.attrsMap && matchEleAttr(currentEle.attrsMap.id, '${name}')){
+        source,
+        type
+    ) => `if(matchEleAttr(currentEle, '${type}', '${name}')){
                         ${source}
                     }`,
 }

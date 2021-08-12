@@ -30,7 +30,7 @@ class createTemplate {
                     console.log(chalk.red(`该标识还没有做兼容。相关数据可能过滤有误 ${e.value}`));
                 }
             } else {
-                this.source = this.typeDis[e.type](e.value,this.source)
+                this.source = this.typeDis[e.type] ? this.typeDis[e.type](e.value,this.source) : this.typeDis['defaultDis'](e.value,this.source,e.type)
             }
           }
           return  this.startHead + this.source + this.endTail

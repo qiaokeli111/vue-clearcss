@@ -7,11 +7,23 @@ function matchEleAttr(matcher,type, value) {
             let classList = []
             if (matcher.classBinding) {
                 let bindClass = getAttrFormStr(matcher.classBinding)
+                classList = classList.concat(bindClass)
+            }
+            if (matcher.attrsMap && matcher.attrsMap.class) {
+                classList = classList.concat(matcher.attrsMap.class.split(" "))
+            }
+            return classList.includes(value)
+        }
+        if (type === 'id') {
+            if (matcher.attrsMap && matcher.attrsMap.id) {
+                return matcher.attrsMap.id === value
             }
         }
-        if (Object.prototype.toString.call(matcher) === "[object String]") {
-            matcher = matcher.split(" ")
-            return matcher.includes(value)
+        if (type === 'attribute') {
+            if (matcher.attrsMap) {
+                let attrs = Object.keys(matcher.attrsMap)
+                return attrs.includes(value) || attrs.includes(`:${value}`)
+            }
         }
     }
 }
@@ -95,6 +107,7 @@ function findEleWithHtml(ele, ast) {
             tag: ({ value }) => ast.tag === value,
             class: ({ value }) => matchEleAttr(ast, "class", value),
             id: ({ value }) => matchEleAttr(ast, "id", value),
+            attribute: (ele) => matchEleAttr(ast, "attribute", ele.attribute),
         }
         if (typeDis[type](ele)) {
             htmlEleArr.push(ast)
