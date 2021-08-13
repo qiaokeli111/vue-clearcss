@@ -40,7 +40,7 @@ methods: {
 
 <style lang="scss">
 $width: 5em;
-[sf=44]{
+#app:last-child{
     color: #000;
 }
 // #nav {

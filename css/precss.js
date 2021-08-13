@@ -58,20 +58,15 @@ const transform = (selectors,position) => {
             let searchEle = util.findSearchEle(selector.nodes)
             let searchEleResult = util.findEleWithHtml(searchEle.searchEle,htmlast)
             if (searchEleResult.length === 0) {
-                setCssArray({
-                    name:selector.nodes[selector.nodes.length-1].value,
-                    position:`start:${position[0]}  end:${position[1]}`
-                })
+                setCssArray(util.assembleConsoleInfo(selector.nodes,position))
                 return
             }
             let templateFun = util.generateTemplate(searchEle.before,searchEle.after)
             let result = templateFun(searchEleResult)
             if (result && result.length === 0) {
-                setCssArray({
-                    name:selector.nodes[selector.nodes.length-1].value,
-                    position:`start:${position[0]}  end:${position[1]}`
-                })
+                setCssArray(util.assembleConsoleInfo(selector.nodes,position))
             }
         }
     })
 }
+

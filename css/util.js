@@ -171,8 +171,17 @@ function wrapFunction(fun) {
     }
 }
 
+function assembleConsoleInfo(nodes,position) {
+    let attr = nodes[nodes.length-1].attribute
+    return {
+        name:`${attr || nodes[nodes.length-1].value}`,
+        position:`start:${position[0]}  end:${position[1]}`
+    }
+}
+
 module.exports = {
     findSearchEle: wrapFunction(findSearchEle),
     findEleWithHtml: wrapFunction(findEleWithHtml),
     generateTemplate: wrapFunction(generateTemplate),
+    assembleConsoleInfo,
 }

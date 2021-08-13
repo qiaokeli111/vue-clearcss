@@ -1,12 +1,18 @@
 let typeDis = {
-    tag: (name, source) => `if(currentEle.tag === '${name}'){
+    tag: (node, source) => `if(currentEle.tag === '${node.value}'){
                         ${source}
                     }`,
     defaultDis:(
-        name,
+        node,
         source,
         type
-    ) => `if(matchEleAttr(currentEle, '${type}', '${name}')){
+    ) => `if(matchEleAttr(currentEle, '${type}', '${node.value}')){
+                        ${source}
+                    }`,
+    attribute:(
+        node,
+        source,
+    ) => `if(matchEleAttr(currentEle, 'attribute', '${node.attribute}')){
                         ${source}
                     }`,
 }
