@@ -27,7 +27,7 @@ class createTemplate {
                 if (this.combinator[e.value]) {
                     this.source = this.combinator[e.value](this.source)
                 } else {
-                    console.log(chalk.red(`该标识还没有做兼容。相关数据可能过滤有误 ${e.value}`));
+                    console.log(chalk.red(`该标识还没有做兼容。相关数据可能过滤有误 '${e.value}'`));
                 }
             } else {
                 this.source = this.typeDis[e.type] ? this.typeDis[e.type](e,this.source) : this.typeDis['defaultDis'](e,this.source,e.type)
