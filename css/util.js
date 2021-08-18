@@ -1,18 +1,20 @@
 var argv = require('minimist')(process.argv.slice(2))
 var { findFirstNotEmpty, validArr } = require('../util')
 var { matcherMethod } = require('./matcher')
+var util = require('../util')
 
 function matchEleAttr(matcher, type, value) {
   if (matcher) {
-      if (matcherMethod[type]) {
-        return matcherMethod[type](matcher,value)
-      } else {
-        return true
-      }
+    if (matcherMethod[type]) {
+      return matcherMethod[type](matcher, value)
+    } else {
+      return true
+    }
   }
 }
+matchEleAttr.util = util
 
-function findSearchEle(nodes,matchCache) {
+function findSearchEle(nodes, matchCache) {
   let lastClassIndex,
     lastIdIndex,
     lastTagIndex,
@@ -85,7 +87,7 @@ function findEleWithHtml(ele, ast, matchCache) {
     return matchCache.getCache(matchCache.builderCacheKey(ele))
   }
   function traversesWithHtml(ele, ast) {
-    if (!ast) return
+    if (!ast || ast.type !== 1) return
     let type = ele.type
     let typeDis = {
       tag: ({ value }) => ast.tag === value,
@@ -145,12 +147,16 @@ function generateTemplate(before, after) {
 }
 
 function wrapFunction(fun) {
-  return function () {
+  let midFun = function () {
     argv.perf && console.time(`${fun.name}`)
     let res = fun.apply(this, arguments)
     argv.perf && console.timeEnd(`${fun.name}`)
     return res
   }
+  Object.getOwnPropertyNames(fun).forEach(attr=>{
+    midFun[attr] = fun[attr]
+  })
+  return midFun
 }
 
 function assembleConsoleInfo(nodes, position) {

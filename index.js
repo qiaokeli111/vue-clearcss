@@ -8,7 +8,6 @@ module.exports = function filterCss(url) {
     var res = compiler.parseComponent(data, { pad: 'line' })
     const htmlast = compiler.compile(res.template.content)
     
-    var parsecss = require('./css/precss')
     var parsecss = require('./css/parsecss')
     let filterArr = []
     if (validArr(res.styles)) {

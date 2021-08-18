@@ -34,8 +34,18 @@ let afterCombinator = {
                         }
                     }
                     `,
+  '~': (source) => `
+                    let temp = currentEle
+                    if (currentEle && (currentEle = matchEleAttr.util.findSiblingAll(currentEle))) {
+                        for (const childEle of currentEle) {
+                            currentEle = childEle
+                            ${source}
+                        }
+                    }
+                    currentEle = temp
+                    `,
   '+': (source) => `
-                    if (currentEle && currentEle.children && Array.isArray(currentEle.children) && currentEle.children.length > 0 && (currentEle = currentEle.children[0])) {
+                    if ((currentEle = matchEleAttr.util.findSibling(currentEle))) {
                     ${source}
                     }
                     `,
@@ -51,8 +61,18 @@ let combinator = {
                 ${source}
                 }
                 `,
+  '~': (source) => `
+                    let temp = currentEle
+                    if (currentEle && (currentEle = matchEleAttr.util.findSiblingAll(currentEle,false))) {
+                        for (const childEle of currentEle) {
+                            currentEle = childEle
+                            ${source}
+                        }
+                    }
+                    currentEle = temp
+                `,
   '+': (source) => `
-                if (currentEle.parent && currentEle === currentEle.parent.children[0] && (currentEle = currentEle.parent)) {
+                if ((currentEle = matchEleAttr.util.findSibling(currentEle,false))) {
                 ${source}
                 }
                 `,

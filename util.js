@@ -43,11 +43,46 @@ function getAttrFormStr(str) {
 }
 
 function validArr(arr) {
-  return Array.isArray(arr) && arr.length > 0
+  return arr && Array.isArray(arr) && arr.length > 0
+}
+
+function findEleIndexInParent(ele){
+    let parent
+    if ((parent = ele.parent)) {
+        let i = 0,e,children = parent.children.filter(e=>e.type === 1)
+        while ((e=children[i++])) {
+            if (e===ele) {
+                break
+            }
+        }
+        return i-1
+    }
+}
+
+function findSibling(ele,next=true) {
+    let currentIndex = findEleIndexInParent(ele)
+    if (currentIndex) {
+        return ele.parent.children.filter(e=>e.type === 1)[next?i:i-2]
+    }
+}
+function findSiblingAll(ele,next=true) {
+    let currentIndex = findEleIndexInParent(ele)
+    if (currentIndex !== undefined || currentIndex !== null) {
+        let children = ele.parent.children.filter(e=>e.type === 1)
+        if (next) {
+            return children.slice(currentIndex+1,children.length)
+        } else {
+            return children.slice(0,currentIndex)
+        }
+        
+    }
+    return []
 }
 
 module.exports = {
   findFirstNotEmpty,
   getAttrFormStr,
-  validArr
+  validArr,
+  findSibling,
+  findSiblingAll
 }

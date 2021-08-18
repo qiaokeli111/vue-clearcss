@@ -13,6 +13,7 @@
             <div :class="{
                 'newYear-theme':true
                 }">
+                <p>aa</p>
                 <a class="router-link-exact-active aw__ee">
                     <div>
                         <div id="ee"></div>
@@ -38,11 +39,6 @@ export default {
 
 <style lang="scss">
 @import url('./testCommon.scss');
-
-// + 选择器
-div+a{
-    color: aqua;
-}
 
 // 验证动态class 拼接classname
 .aw{
@@ -94,5 +90,14 @@ a {
   @include  large-text;
   border-width: 3px;
 }
+
+// ~ + 选择器
+p~a{
+    color: #000;
+}
+div+p{
+    color: #000;
+}
+
 </style>
 

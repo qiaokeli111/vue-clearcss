@@ -4,6 +4,7 @@
         class="aw"
         :sf="er"
     >
+    {{oo}}
         <div
             id="nav"
             :class="['main-container',isNewYearTheme?'newYear-theme':'dde']"
@@ -13,11 +14,13 @@
             <div :class="{
                 'newYear-theme':true
                 }">
+                <p>ss</p>
                 <a class="router-link-exact-active aw__ee">
                     <div>
                         <div id="ee"></div>
                     </div>
                 </a>
+                
             </div>
         </div>
         <router-view />
@@ -38,7 +41,7 @@ export default {
 
 <style lang="scss">
 // + 选择器
-div+p{
+#nav p~a{
     color: aqua;
 }
 </style>
