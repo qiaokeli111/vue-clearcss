@@ -62,7 +62,7 @@ function findEleIndexInParent(ele){
 function findSibling(ele,next=true) {
     let currentIndex = findEleIndexInParent(ele)
     if (currentIndex) {
-        return ele.parent.children.filter(e=>e.type === 1)[next?i:i-2]
+        return ele.parent.children.filter(e=>e.type === 1)[next?currentIndex:currentIndex-2]
     }
 }
 function findSiblingAll(ele,next=true) {

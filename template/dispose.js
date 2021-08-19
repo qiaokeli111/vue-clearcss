@@ -19,11 +19,15 @@ let typeDis = {
 
 let afterCombinator = {
   ' ': (source) => `
-                    while (currentEle && (currentEle = currentEle.children)) {
-                        for (const childEle of currentEle) {
+                    let cyclic = [].concat(currentEle.children)
+                    while (cyclic.length > 0) {
+                        let tempCyclic = []
+                        for (const childEle of cyclic) {
                             currentEle = childEle
+                            tempCyclic = tempCyclic.concat(currentEle.children)
                             ${source}
                         }
+                        cyclic = tempCyclic
                     }
                     `,
   '>': (source) => `

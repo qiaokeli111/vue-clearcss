@@ -13,12 +13,13 @@
             <div :class="{
                 'newYear-theme':true
                 }">
-                <p>aa</p>
+                <div>22</div>
                 <a class="router-link-exact-active aw__ee">
                     <div>
                         <div id="ee"></div>
                     </div>
                 </a>
+                <p>aa</p>
             </div>
         </div>
         <router-view />
@@ -92,7 +93,7 @@ a {
 }
 
 // ~ + 选择器
-p~a{
+div~a{
     color: #000;
 }
 div+p{
