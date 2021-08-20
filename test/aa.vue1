@@ -32,21 +32,14 @@ export default {
 </script>
 
 <style lang="scss">
-#app div ~ p {
+::v-deep .ssg {
     background-color: yellow;
 }
-#app p {
-    background: red;
+
+</style>
+<style lang="scss">
+.ggs {
+    background-color: yellow;
 }
 
-#app a {
-    background: red;
-}
-#app .ss {
-    background: red;
-}
-
-#app .gg {
-    background: red;
-}
 </style>

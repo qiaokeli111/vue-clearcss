@@ -1,6 +1,6 @@
  测试
-1 筛选出来的元素是id class  tag
-2 筛选的元素只有before 或者 after
+// 筛选出来的元素是id class  tag
+// 筛选的元素只有before 或者 after
 //  vue的动态class id    delete   不支持动态computed
 //  after的处理    delete
  vue ui的集成    最后

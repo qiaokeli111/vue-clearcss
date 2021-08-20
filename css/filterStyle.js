@@ -20,19 +20,8 @@ module.exports = class filterStyle {
       return postcss([this.fliterPlugin(this)])
         .process(e, { from: undefined })
         .then((e) => {
-          if (!context.argv.test) {
-            console.log(`<--------${this.lang} style block -------->`)
-            if (this.filterCssArray.length === 0) {
-              console.log(chalk.green('no useless css '))
-            } else {
-              this.filterCssArray.forEach((i) => {
-                console.log(chalk.red(`selector ${i.name}`))
-                console.log(chalk.blue(i.position))
-              })
-            }
-            console.log(`<----------------------------------------->
-                            
-                            `)
+          this.filterCssArray.info = {
+              lang:this.lang
           }
           context.filterArr.push(this.filterCssArray)
           return this.filterCssArray
