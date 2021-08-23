@@ -1,5 +1,9 @@
 <template>
-    <div id="app" class="aw" :sf="er">
+    <div
+        id="app"
+        class="aw"
+        :sf="er"
+    >
         <div>22</div>
         <div>
             <div>
@@ -20,26 +24,21 @@
 </template>
 <script>
 export default {
-    mounted() {},
-    data() {
-        return {
-            isNewYearTheme: true,
-            oo: ["main-container", isNewYearTheme ? "newYear-theme" : ""],
-        }
-    },
-    methods: {},
-}
+  mounted() {},
+  data() {
+    return {
+      isNewYearTheme: true,
+      oo: ["main-container", isNewYearTheme ? "newYear-theme" : ""],
+    };
+  },
+  methods: {},
+};
 </script>
-
-<style lang="scss">
-::v-deep .ssg {
-    background-color: yellow;
-}
-
-</style>
-<style lang="scss">
-.ggs {
-    background-color: yellow;
+<style lang="less">
+.ggff {
+    .ss{
+        color: aqua;
+    }
 }
 
 </style>

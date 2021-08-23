@@ -95,9 +95,14 @@ function findEleWithHtml(ele, ast, matchCache) {
       id: ({ value }) => matchEleAttr(ast, 'id', value),
       attribute: (ele) => matchEleAttr(ast, 'attribute', ele.attribute),
     }
-    if (typeDis[type](ele)) {
-      htmlEleArr.push(ast)
+    if (typeDis[type]) {
+        if (typeDis[type](ele)) {
+            htmlEleArr.push(ast)
+          }
+    }else{
+        debugger;
     }
+   
     ast.children &&
       ast.children.forEach((child) => {
         traversesWithHtml(ele, child)

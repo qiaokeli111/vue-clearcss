@@ -10,7 +10,10 @@
  只处理了' '的选择器  >  delete  [attr] delete  + ~ delete,  :lastchild伪元素不兼容  slot delete
 //  选择器做缓存  html查找元素的缓存  动态便利的不做缓存因为相同可能性很小  delete
  优化vue解析的ast type 目前为1才是，3不是，其他未知
- 多个页面同时调用
- 兼容 @import
+//  多个页面同时调用
+//  兼容 @import
 //  改成class类型
- https://www.w3ctech.com/topic/2226  postcss8
+//  https://www.w3ctech.com/topic/2226  postcss8
+//  媒体查询
+less 的问题
+他的混合是class 可能存在引用，但是自身没有使用

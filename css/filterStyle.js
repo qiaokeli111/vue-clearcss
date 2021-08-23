@@ -2,16 +2,17 @@ const postcss = require('postcss')
 const util = require('./util')
 const fs = require('fs')
 const chalk = require('chalk')
-const comment = require('postcss-comment')
 var path = require('path')
 var { validArr } = require('../util')
 
 module.exports = class filterStyle {
-  constructor({ lang, content }) {
+  constructor({ lang, content }, opt = {}) {
     this.filterCssArray = []
     this.lang = lang
     this.originCss = content
     this.context = null
+    this.opt = opt
+    this.getComment = this.getCommentFun(lang)
   }
   unuseCss(context) {
     this.context = context
@@ -21,61 +22,80 @@ module.exports = class filterStyle {
         .process(e, { from: undefined })
         .then((e) => {
           this.filterCssArray.info = {
-              lang:this.lang
+            lang: this.lang,
           }
-          context.filterArr.push(this.filterCssArray)
+
+          !this.opt.notPushParent && context.filterArr.push(this.filterCssArray)
           return this.filterCssArray
         })
     })
   }
   transformToCss(css, cssLang) {
     if (cssLang === 'less') {
-      const syntax = require('postcss-less')
-      return postcss([]).process(css, {
+    //   const syntax = require('postcss-less')
+      var less = require('./postcss-less');
+      return postcss([less({})]).process(css, {
         from: undefined,
-        parser: comment,
-        syntax: syntax,
+        // syntax: syntax,
       })
     } else if (cssLang === 'scss') {
-      //   const parse = require("precss")
       var parse = require('postcss-node-sass')
       return postcss([parse({ sourceComments: true })]).process(css, {
         from: undefined,
-        parser: comment,
       })
     } else if (cssLang === 'sass') {
       var postcssSass = require('postcss-sass')
       return postcss([]).process(css, {
         from: undefined,
-        parser: comment,
         syntax: postcssSass,
       })
     } else {
       return postcss([]).process(css, { from: undefined, parser: comment })
     }
   }
+  getCommentFun(lang) {
+    if (lang === 'scss') {
+      return function (node) {
+        let comment = node.prev()
+        let initLine = Number(/line(.*), stdin/.exec(comment.text)[1])
+        return [
+          initLine,
+          node.source.end.line - node.source.start.line + initLine,
+        ]
+      }
+    } else {
+      return function (node) {
+        return [node.source.start.line, node.source.end.line]
+      }
+    }
+  }
   fliterPlugin(opts = {}) {
     return {
       postcssPlugin: 'fliterPlugin',
-      Once(root) {
-        let { nodes } = root
-        for (let i = 0; i < nodes.length; i++) {
-            const node = nodes[i];
-            if (node.type === 'rule' && node.selector) {
-                let initLine =Number(/line(.*), stdin/.exec(nodes[i-1].text)[1]);
-                let position = [initLine, node.source.end.line-node.source.start.line+initLine]
-                const parser = require('postcss-selector-parser')
-                parser((selectors) =>
-                  opts.transform(selectors, position)
-                ).processSync(node.selector)
-            }
-            // if (node.type === 'atrule' && node.name === 'import') {
-            //     let url = nodes.params
-            //     url = url.replace(/[\r\n\s]/gm, '') 
-            //     url = /url\(['"]*(.*?)['"]*\)/.exec(url)[1]
-            //     var importCSS = fs.readFileSync(path.resolve(__dirname, url), 'utf-8')
-            // }
-        }
+      Rule(node) {
+        const parser = require('postcss-selector-parser')
+        parser((selectors) =>
+          opts.transform(selectors, opts.getComment(node))
+        ).processSync(node.selector)
+      },
+      AtRule: {
+        import: (node) => {
+          let url = node.params
+          url = url.replace(/[\r\n\s]/gm, '')
+          url = /url\(['"]*(.*?)['"]*\)/.exec(url)[1]
+          var importPath = path.resolve(opts.context.parseUrl, '..', url)
+          var content = fs.readFileSync(importPath, 'utf-8')
+          let lang = path.extname(importPath)
+          let importProcess = new filterStyle(
+            { lang: lang.slice(1, lang.length), content },
+            { notPushParent: true }
+          )
+          return importProcess.unuseCss(opts.context).then((res) => {
+            opts.setCssArray(
+              res.map((e) => ({ ...e, name: `${e.name} from ${url}` }))
+            )
+          })
+        },
       },
     }
   }
@@ -105,6 +125,6 @@ module.exports = class filterStyle {
     })
   }
   setCssArray(css) {
-    this.filterCssArray.push(css)
+    this.filterCssArray = this.filterCssArray.concat(css)
   }
 }

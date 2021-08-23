@@ -39,8 +39,6 @@ export default {
 </script>
 
 <style lang="scss">
-@import url('./testCommon.scss');
-
 // 验证动态class 拼接classname
 .aw{
     &__ee{

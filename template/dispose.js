@@ -24,7 +24,7 @@ let afterCombinator = {
                         let tempCyclic = []
                         for (const childEle of cyclic) {
                             currentEle = childEle
-                            tempCyclic = tempCyclic.concat(currentEle.children)
+                            tempCyclic = (currentEle.children || []).concat(tempCyclic)
                             ${source}
                         }
                         cyclic = tempCyclic

@@ -1,8 +1,27 @@
-
 var parsecss = require('./css/parsecss')
+const path = require('path')
+const fs = require('fs')
+const globby = require('globby')
+
 module.exports = function filterCss(url) {
-  let cssResolver = new parsecss(url)
-  return new Promise((resolve) => {
-    cssResolver.findUnuseCss().then(e=>resolve(e))
-  })
+  let baseUrl = process.argv[1]
+  url = path.resolve(baseUrl, '..', url)
+  let isDirectory = fs.lstatSync(url).isDirectory()
+  let cssResolver
+  if (isDirectory) {
+    const paths = globby.sync(['**.vue'], {
+      cwd: url,
+      absolute: true,
+    })
+    return Promise.all(
+      paths.map((e) => {
+        let cssResolver = new parsecss(e)
+        return cssResolver.findUnuseCss()
+      })
+    )
+  } else {
+    cssResolver = new parsecss(url, { mode: 'singlePage' })
+    return cssResolver.findUnuseCss()
+  }
+return Promise.resolve(2)
 }
