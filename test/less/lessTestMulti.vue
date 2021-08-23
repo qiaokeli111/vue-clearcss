@@ -31,11 +31,19 @@ export default {
 }
 </script>
 
-<style lang="scss">
-@import url('./testCommon.scss');
+<style lang="less">
 ::v-deep .ss{
     background-color: yellow;
 }
-
+</style>
+<style lang="less">
+.gg{
+    background-color: yellow;
+}
+</style>
+<style lang="less">
+.aw .ss{
+    background-color: yellow;
+}
 </style>
 

@@ -31,8 +31,8 @@ export default {
 }
 </script>
 
-<style lang="scss">
-@import url('./testCommon.scss');
+<style lang="less">
+@import url('./testCommon.less');
 ::v-deep .ss{
     background-color: yellow;
 }

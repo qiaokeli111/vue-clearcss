@@ -32,16 +32,15 @@ module.exports = class filterStyle {
   }
   transformToCss(css, cssLang) {
     if (cssLang === 'less') {
-    //   const syntax = require('postcss-less')
+     
       var less = require('./postcss-less');
-      return postcss([less({})]).process(css, {
-        from: undefined,
-        // syntax: syntax,
-      })
+      return less(css)
     } else if (cssLang === 'scss') {
+      const comment = require('postcss-comment')
       var parse = require('postcss-node-sass')
       return postcss([parse({ sourceComments: true })]).process(css, {
         from: undefined,
+        parser: comment,
       })
     } else if (cssLang === 'sass') {
       var postcssSass = require('postcss-sass')
@@ -63,6 +62,15 @@ module.exports = class filterStyle {
           node.source.end.line - node.source.start.line + initLine,
         ]
       }
+    } else if(lang === 'less'){
+        return function (node) {
+            let positionMap = node.root().raws.positionMap
+            let initLine = positionMap.get(node.source.start.line).originalLine
+            return [
+              initLine,
+              node.source.end.line - node.source.start.line + initLine,
+            ]
+          }
     } else {
       return function (node) {
         return [node.source.start.line, node.source.end.line]
@@ -96,6 +104,9 @@ module.exports = class filterStyle {
             )
           })
         },
+        importless:(node)=>{
+            debugger;
+        }
       },
     }
   }

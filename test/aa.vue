@@ -1,9 +1,5 @@
 <template>
-    <div
-        id="app"
-        class="aw"
-        :sf="er"
-    >
+    <div id="app" class="aw" :sf="er">
         <div>22</div>
         <div>
             <div>
@@ -24,21 +20,23 @@
 </template>
 <script>
 export default {
-  mounted() {},
-  data() {
-    return {
-      isNewYearTheme: true,
-      oo: ["main-container", isNewYearTheme ? "newYear-theme" : ""],
-    };
-  },
-  methods: {},
-};
+    mounted() {},
+    data() {
+        return {
+            isNewYearTheme: true,
+            oo: ["main-container", isNewYearTheme ? "newYear-theme" : ""],
+        }
+    },
+    methods: {},
+}
 </script>
+
 <style lang="less">
-.ggff {
-    .ss{
-        color: aqua;
-    }
+@import "./less/testCommon1.less";
+@import "./less/testCommon2.less";
+::v-deep .ss{
+    background-color: yellow;
 }
 
 </style>
+
