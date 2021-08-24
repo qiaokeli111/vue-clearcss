@@ -34,7 +34,7 @@ async function commonTestFunction(done, testUrl) {
   }
 }
 
-describe('lessTest.js', () => {
+describe('lessTest', () => {
   it('simple', (done) => {
     commonTestFunction(done, './less/lessTest.vue')
   })
@@ -45,7 +45,7 @@ describe('lessTest.js', () => {
     commonTestFunction(done, './less')
   })
   it('importcss', (done) => {
-    commonTestFunction(done, './scss/scssTestImport.vue')
+    commonTestFunction(done, './less/lessTestMulti.vue')
   })
   it('multiStyle', (done) => {
     commonTestFunction(done, './less/lessTestMulti.vue')

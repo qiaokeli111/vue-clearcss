@@ -32,9 +32,8 @@ export default {
 </script>
 
 <style lang="less">
-@import "./less/testCommon1.less";
-@import "./less/testCommon2.less";
-::v-deep .ss{
+@import './less/testCommon1 ' ;
+::v-deep .ssw{
     background-color: yellow;
 }
 

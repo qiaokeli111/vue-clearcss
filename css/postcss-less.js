@@ -7,9 +7,7 @@ let postcss = require("postcss"),
     less = require("less")
 
 module.exports = (css) => {
-    let replaceCss  = css.replace(/@import\s*['|"]*\s*([^'|"]*)\s*['|"]*/gm,function(importAttr,url){
-        return `@import1 url('${url}');`
-    })
+    let replaceCss  = css.replace(/@import\s*(?:url)?\s*\(?\s*['|"]*\s*([^'|"|\s]*)\s*['|"]*\s*\)?;*/gm,`@lessimport $1;`)
     return less
         .render(replaceCss, {
             sourceMap: {

@@ -111,4 +111,9 @@ export default {
     color: @var; // white
   }
 }
+@media screen and (max-width: 300px) {
+    .gg {
+        background-color:lightblue;
+    }
+}
 </style>

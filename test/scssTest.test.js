@@ -34,7 +34,7 @@ async function commonTestFunction(done, testUrl) {
   }
 }
 
-describe('scssTest.js', () => {
+describe('scssTest', () => {
   it('simple', (done) => {
     commonTestFunction(done, './scss/scssTest.vue')
   })

@@ -98,5 +98,11 @@ div+p{
     color: #000;
 }
 
+@media screen and (max-width: 300px) {
+    .newYear-theme {
+        background-color:lightblue;
+    }
+}
+
 </style>
 

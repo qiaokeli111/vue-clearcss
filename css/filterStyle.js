@@ -91,24 +91,30 @@ module.exports = class filterStyle {
           let url = node.params
           url = url.replace(/[\r\n\s]/gm, '')
           url = /url\(['"]*(.*?)['"]*\)/.exec(url)[1]
-          var importPath = path.resolve(opts.context.parseUrl, '..', url)
-          var content = fs.readFileSync(importPath, 'utf-8')
-          let lang = path.extname(importPath)
-          let importProcess = new filterStyle(
-            { lang: lang.slice(1, lang.length), content },
-            { notPushParent: true }
-          )
-          return importProcess.unuseCss(opts.context).then((res) => {
-            opts.setCssArray(
-              res.map((e) => ({ ...e, name: `${e.name} from ${url}` }))
-            )
-          })
+          opts.addNewStyle(url)
         },
-        importless:(node)=>{
-            debugger;
+        lessimport:(node)=>{
+            let url = node.params
+            return opts.addNewStyle(url)
         }
       },
     }
+  }
+
+  addNewStyle(url){
+    var importPath = path.resolve(this.context.parseUrl, '..', url)
+    var content = fs.readFileSync(importPath, 'utf-8')
+    let lang = path.extname(importPath)
+    let importProcess = new filterStyle(
+        { lang: lang.slice(1, lang.length), content },
+        { notPushParent: true }
+    )
+    let that = this
+    return importProcess.unuseCss(this.context).then((res) => {
+        that.setCssArray(
+        res.map((e) => ({ ...e, name: `${e.name} from ${url}` }))
+        )
+    })
   }
 
   transform(selectors, position) {
