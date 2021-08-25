@@ -1,5 +1,3 @@
-// test.js
-
 const assert = require('assert')
 const filterCss = require('../index')
 

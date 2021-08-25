@@ -1,24 +1,7 @@
-// test.js
-
 const assert = require('assert')
 const path = require('path')
 
-
-async function regexTest(done, testUrl) {
-  try {
-    let result = await filterCss(path.resolve(__dirname, testUrl))
-    if (Array.isArray(result) && detectLoopResult(result)) {
-      done()
-    } else {
-      done(new Error('test fail'))
-    }
-  } catch (err) {
-    done(err)
-  }
-}
 let matchImportReg = /@import\s*(?:url)?\s*\(?\s*['|"]*\s*([^'|"|\s]*)\s*['|"]*\s*\)?;*/gm
-let cleanSpaceReg = /[\r\n\s]/gm
-let matchUrlReg = /url\(['"]*(.*?)['"]*\)/
 describe('regex', () => {
   it('@import', () => {
 

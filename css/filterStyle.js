@@ -60,34 +60,20 @@ module.exports = class filterStyle {
         }
     }
     getCommentFun(lang) {
+        function scss_lessComment(node) {
+            let positionMap = node.root().raws.positionMap
+            let initLine = positionMap.get(
+                node.source.start.line
+            ).originalLine
+            return [
+                initLine,
+                node.source.end.line - node.source.start.line + initLine,
+            ]
+        }
         if (lang === "scss") {
-            return function (node) {
-                // let comment = node.prev()
-                // let initLine = Number(/line(.*), stdin/.exec(comment.text)[1])
-                // return [
-                //     initLine,
-                //     node.source.end.line - node.source.start.line + initLine,
-                // ]
-                let positionMap = node.root().raws.positionMap
-                let initLine = positionMap.get(
-                    node.source.start.line
-                ).originalLine
-                return [
-                    initLine,
-                    node.source.end.line - node.source.start.line + initLine,
-                ]
-            }
+            return scss_lessComment
         } else if (lang === "less") {
-            return function (node) {
-                let positionMap = node.root().raws.positionMap
-                let initLine = positionMap.get(
-                    node.source.start.line
-                ).originalLine
-                return [
-                    initLine,
-                    node.source.end.line - node.source.start.line + initLine,
-                ]
-            }
+            return scss_lessComment
         } else {
             return function (node) {
                 return [node.source.start.line, node.source.end.line]
@@ -126,12 +112,6 @@ module.exports = class filterStyle {
                 ).processSync(node.selector)
             },
             AtRule: {
-                // import: (node) => {
-                //     let url = node.params
-                //     url = url.replace(/[\r\n\s]/gm, "")
-                //     url = /url\(['"]*(.*?)['"]*\)/.exec(url)[1]
-                //     opts.addNewStyle(url)
-                // },
                 specialimport: (node) => {
                     let url = node.params
                     return opts.addNewStyle(url).catch((e) => {
@@ -162,7 +142,7 @@ module.exports = class filterStyle {
                 )
             })
         } else {
-            return Promise.reject(`@import unfound this file ${url} `)
+            return Promise.reject(`@import not found this file ${url} `)
         }
     }
 
