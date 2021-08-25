@@ -5,11 +5,11 @@
 
 let postcss = require("postcss"),
     less = require("less")
+    util = require('./util')
 
 module.exports = (css) => {
-    let replaceCss  = css.replace(/@import\s*(?:url)?\s*\(?\s*['|"]*\s*([^'|"|\s]*)\s*['|"]*\s*\)?;*/gm,`@lessimport $1;`)
     return less
-        .render(replaceCss, {
+        .render(css, {
             sourceMap: {
                 outputSourceFiles: true,
             },
@@ -27,29 +27,7 @@ module.exports = (css) => {
             //     },
             // })
         })
-        .then((res) => {
-            var sourceMap
-            try {
-                sourceMap = res.source.input.map.consumer()._generatedMappings
-            } catch (error) {
-                sourceMap = []
-            }
-
-            var positionMap = new Map()
-            sourceMap.forEach((e) => {
-                let cacheLine = positionMap.get(e.generatedLine)
-                if (
-                    cacheLine &&
-                    cacheLine.generatedColumn &&
-                    cacheLine.generatedColumn > e.generatedColumn
-                ) {
-                    return
-                }
-                positionMap.set(e.generatedLine, e)
-            })
-            res.raws.positionMap = positionMap
-            return res
-        }).catch(e=>{
+        .catch(e=>{
             throw new Error(e)
         })
 }

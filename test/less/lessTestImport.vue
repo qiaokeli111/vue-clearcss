@@ -34,6 +34,7 @@ export default {
 <style lang="less">
 @import url('./testCommon1.less');
 @import './testCommon1.less';
+@import '  ./testCommon1  ';
 ::v-deep .ss{
     background-color: yellow;
 }

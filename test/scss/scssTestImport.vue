@@ -33,6 +33,9 @@ export default {
 
 <style lang="scss">
 @import url('./testCommon.scss');
+@import url('./testCommon');
+@import '  ./testCommon.scss   ';
+@import '  ./testCommon   ';
 ::v-deep .ss{
     background-color: yellow;
 }
