@@ -14,9 +14,9 @@ function commonTestFun(url, absoluteUrl,lang) {
 describe('urlParse', () => {
   it('scssUrl', () => {
    
-	commonTestFun('./scss/testCommon.scss','D:/czj/node/vue-clearcss/test/scss/testCommon.scss')
+	commonTestFun('./scss/testCommon.scss',slash(path.resolve(__dirname,'./scss/testCommon.scss')))
 
-	commonTestFun('./scss/testCommon','D:/czj/node/vue-clearcss/test/scss/testCommon.scss')
+	commonTestFun('./scss/testCommon',slash(path.resolve(__dirname,'./scss/testCommon.scss')))
 
 	commonTestFun('./scss/testCommon2',undefined)
 
@@ -26,13 +26,13 @@ describe('urlParse', () => {
 
   it('lessUrl', () => {
    
-	commonTestFun('./less/testCommon1.less','D:/czj/node/vue-clearcss/test/less/testCommon1.less')
+	commonTestFun('./less/testCommon1.less',slash(path.resolve(__dirname,'./less/testCommon1.less')))
 
-	commonTestFun('./less/testCommon2','D:/czj/node/vue-clearcss/test/less/testCommon2.less')
+	commonTestFun('./less/testCommon2',slash(path.resolve(__dirname,'./less/testCommon2.less')))
 
-	commonTestFun('./less/testCommon1','D:/czj/node/vue-clearcss/test/less/testCommon1.css','css')
+	commonTestFun('./less/testCommon1',slash(path.resolve(__dirname,'./less/testCommon1.css')),'css')
 
-	commonTestFun('./less/testCommon1','D:/czj/node/vue-clearcss/test/less/testCommon1.less','less')
+	commonTestFun('./less/testCommon1',slash(path.resolve(__dirname,'./less/testCommon1.less')),'less')
 
 	commonTestFun('./less/testCommon3',undefined)
 

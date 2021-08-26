@@ -1,41 +1,24 @@
 <template>
-    <div id="app" class="aw" :sf="er">
-        <div>22</div>
-        <div>
-            <div>
-                22
-                <div>22
-
-                    <a class="gg">3</a>
-                </div>
-            </div>
-            <div>
-                <div>我是唐老鸭。</div>
-                <p class="ss">我住在 Duckburg。</p>
-            </div>
-            <div>22</div>
-        </div>
-        <div>22</div>
-    </div>
+    <ee >
+        <template v-slot:page-view>
+            <!-- 浏览量 -->
+            <view class="ss">
+               
+            </view>
+        </template>
+    </ee>
 </template>
+
 <script>
-export default {
-    mounted() {},
-    data() {
-        return {
-            isNewYearTheme: true,
-            oo: ["main-container", isNewYearTheme ? "newYear-theme" : ""],
-        }
-    },
-    methods: {},
-}
+
 </script>
 
 <style lang="scss">
-@import './scss/testCommon2' ;
-::v-deep .ssw{
-    background-color: yellow;
+.ss {
+    position: absolute;
+    left: 32rpx;
+    bottom: 34rpx;
+    display: flex;
+    z-index: 5;
 }
-
 </style>
-

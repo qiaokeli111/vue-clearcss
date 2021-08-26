@@ -19,7 +19,7 @@ let typeDis = {
 
 let afterCombinator = {
   ' ': (source) => `
-                    let cyclic = [].concat(currentEle.children)
+                    let cyclic =  [].concat(currentEle.children || [])
                     while (cyclic.length > 0) {
                         let tempCyclic = []
                         for (const childEle of cyclic) {
@@ -49,19 +49,19 @@ let afterCombinator = {
                     currentEle = temp
                     `,
   '+': (source) => `
-                    if ((currentEle = matchEleAttr.util.findSibling(currentEle))) {
+                    if (currentEle && (currentEle = matchEleAttr.util.findSibling(currentEle))) {
                     ${source}
                     }
                     `,
 }
 let combinator = {
   ' ': (source) => `
-                while ((currentEle = currentEle.parent)) {
+                while (currentEle && (currentEle = currentEle.parent)) {
                 ${source}
                 }
                 `,
   '>': (source) => `
-                if ((currentEle = currentEle.parent)) {
+                if (currentEle && (currentEle = currentEle.parent)) {
                 ${source}
                 }
                 `,
@@ -76,7 +76,7 @@ let combinator = {
                     currentEle = temp
                 `,
   '+': (source) => `
-                if ((currentEle = matchEleAttr.util.findSibling(currentEle,false))) {
+                if (currentEle && (currentEle = matchEleAttr.util.findSibling(currentEle,false))) {
                 ${source}
                 }
                 `,

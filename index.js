@@ -5,7 +5,7 @@ const globby = require('globby')
 
 module.exports = function filterCss(url) {
   let baseUrl = process.argv[1]
-  url = path.resolve(baseUrl, '..', url)
+  url = path.resolve(process.cwd(), url)
   let isDirectory = fs.lstatSync(url).isDirectory()
   let cssResolver
   if (isDirectory) {
@@ -23,5 +23,4 @@ module.exports = function filterCss(url) {
     cssResolver = new parsecss(url, { mode: 'singlePage' })
     return cssResolver.findUnuseCss()
   }
-return Promise.resolve(2)
 }

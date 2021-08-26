@@ -24,8 +24,8 @@ export default {
   mounted () {},
   data () {
     return {
-      isNewYearTheme: true,
-      oo: ['main-container', isNewYearTheme ? 'newYear-theme' : '']
+      fwe: true,
+      oo: ['main-container', fwe ? 'yyyu' : '']
     }
   },
   methods: {}

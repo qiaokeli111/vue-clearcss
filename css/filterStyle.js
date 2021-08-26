@@ -8,7 +8,7 @@ var { validArr } = require("../util")
 module.exports = class filterStyle {
     constructor({ lang, content }, opt = {}) {
         this.filterCssArray = []
-        this.lang = lang
+        this.lang = lang || 'css'
         this.originCss = content
         this.context = null
         this.opt = opt
@@ -53,10 +53,7 @@ module.exports = class filterStyle {
                 syntax: postcssSass,
             })
         } else {
-            return postcss([]).process(css, {
-                from: undefined,
-                parser: comment,
-            })
+            return Promise.resolve(postcss.parse(util.repalceImportUrl(css)))
         }
     }
     getCommentFun(lang) {

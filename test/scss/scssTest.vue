@@ -6,12 +6,12 @@
     >
         <div
             id="nav"
-            :class="['main-container',isNewYearTheme?'newYear-theme':'dde']"
+            :class="['main-container',fwe?'yyyu':'dde']"
         >
             <router-link to="/">Home</router-link> |
             <router-link to="/about/ee">About</router-link>
             <div :class="{
-                'newYear-theme':true
+                'yyyu':true
                 }">
                 <div>22</div>
                 <a class="router-link-exact-active aw__ee">
@@ -30,8 +30,8 @@ export default {
   mounted() {},
   data() {
     return {
-      isNewYearTheme: true,
-      oo: ["main-container", isNewYearTheme ? "newYear-theme" : ""],
+      fwe: true,
+      oo: ["main-container", fwe ? "yyyu" : ""],
     };
   },
   methods: {},
@@ -47,14 +47,14 @@ export default {
     .main-container{
         color: aqua;
     }
-    .newYear-theme{
+    .yyyu{
         color: aqua;
     }
 }
 // 父选择符： &
 #app {
   color: black;
-  >.newYear-theme {
+  >.yyyu {
     font-weight: bold;
   }
 }
@@ -99,7 +99,7 @@ div+p{
 }
 
 @media screen and (max-width: 300px) {
-    .newYear-theme {
+    .yyyu {
         background-color:lightblue;
     }
 }

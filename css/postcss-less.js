@@ -20,12 +20,6 @@ module.exports = (css) => {
                   prev: JSON.parse(output.map),
                 },
               })
-            // return postcss().process(output.css, {
-            //     from: undefined,
-            //     map: {
-            //         prev: JSON.parse(output.map),
-            //     },
-            // })
         })
         .catch(e=>{
             throw new Error(e)

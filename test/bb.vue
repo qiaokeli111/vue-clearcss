@@ -7,12 +7,12 @@
     {{oo}}
         <div
             id="nav"
-            :class="['main-container',isNewYearTheme?'newYear-theme':'dde']"
+            :class="['main-container',fwe?'yyyu':'dde']"
         >
             <router-link to="/">Home</router-link> |
             <router-link to="/about/ee">About</router-link>
             <div :class="{
-                'newYear-theme':true
+                'yyyu':true
                 }">
                 <p>ss</p>
                 <a class="router-link-exact-active aw__ee">
@@ -31,8 +31,8 @@ export default {
   mounted() {},
   data() {
     return {
-      isNewYearTheme: true,
-      oo: ["main-container", isNewYearTheme ? "newYear-theme" : ""],
+      fwe: true,
+      oo: ["main-container", fwe ? "yyyu" : ""],
     };
   },
   methods: {},
