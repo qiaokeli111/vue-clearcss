@@ -13,6 +13,11 @@ module.exports = class parsecss {
     this.filterStyleProcess = []
     this.suffixName = ''
     this.mode = opt.mode || 'normal'
+    this.templateModule = {
+        transformNode(e){
+            e.childrens = e.children
+        }
+    }
   }
   initParse(url) {
     var fs = require('fs')
@@ -25,7 +30,7 @@ module.exports = class parsecss {
     var data = fs.readFileSync(path.resolve(process.execPath, url), 'utf-8')
     var { validArr } = require('../util')
     var res = compiler.parseComponent(data, { pad: 'line' })
-    const htmlast = compiler.compile(res.template.content)
+    const htmlast = compiler.compile(res.template.content,{modules:[this.templateModule]})
     let filterArr = []
 
     this.script = res.script
