@@ -68,14 +68,15 @@ function validArr(arr) {
     return arr && Array.isArray(arr) && arr.length > 0
 }
 
+
 function findEleIndexInParent(ele) {
     if (!ele) return
     let parent
     if ((parent = ele.parent)) {
         let i = 0,
             e,
-            children = parent.children.filter((e) => e.type === 1)
-        while ((e = children[i++])) {
+            childrens = parent.childrens.filter((e) => e.type === 1)
+        while ((e = childrens[i++])) {
             if (e === ele) {
                 break
             }
@@ -86,20 +87,45 @@ function findEleIndexInParent(ele) {
 
 function findSibling(ele, next = true) {
     let currentIndex = findEleIndexInParent(ele)
+    let conditionId  = ele.ifConditionsCollectionId
     if (currentIndex) {
-        return ele.parent.children.filter((e) => e.type === 1)[
+
+        if (conditionId) {
+            let siblingEle = ele.parent.childrens.filter((e) => e.type === 1 && e.ifConditionsCollectionId !== ele.ifConditionsCollectionId)[
+                next ? currentIndex : currentIndex - 2
+            ]
+            if (siblingEle.ifConditionsCollectionId) {
+                return ele.parent.childrens.filter((e) => e.ifConditionsCollectionId === siblingEle.ifConditionsCollectionId &&  e.type === 1)
+            }else{
+                return [siblingEle]
+            }
+        } else {
+            
+        }
+
+
+        let siblingEle = ele.parent.childrens.filter((e) => e.type === 1)[
             next ? currentIndex : currentIndex - 2
         ]
+        if (siblingEle.ifConditionsCollectionId) {
+            return ele.parent.childrens.filter((e) => e.ifConditionsCollectionId === siblingEle.ifConditionsCollectionId &&  e.type === 1)
+        }else{
+            return [siblingEle]
+        }
+
+
+
     }
+    return []
 }
 function findSiblingAll(ele, next = true) {
     let currentIndex = findEleIndexInParent(ele)
     if (currentIndex !== undefined || currentIndex !== null) {
-        let children = ele.parent.children.filter((e) => e.type === 1)
+        let childrens = ele.parent.childrens.filter((e) => e.type === 1)
         if (next) {
-            return children.slice(currentIndex + 1, children.length)
+            return childrens.slice(currentIndex + 1, childrens.length)
         } else {
-            return children.slice(0, currentIndex)
+            return childrens.slice(0, currentIndex)
         }
     }
     return []

@@ -1,6 +1,7 @@
 const filterStyle = require('./filterStyle')
 var argv = require('minimist')(process.argv.slice(2))
 const chalk = require('chalk')
+ifConditionsCollectionId = 1
 module.exports = class parsecss {
   constructor(url, opt = {}) {
     this.script = null
@@ -15,7 +16,18 @@ module.exports = class parsecss {
     this.mode = opt.mode || 'normal'
     this.templateModule = {
         transformNode(e){
-            e.childrens = e.children
+            let children =e.children
+            let childrens = []
+            children.forEach(e=>{
+                if (e.ifConditions) {
+                    childrens = childrens.concat(e.ifConditions.map(i=>({...i.block,ifConditionsCollectionId})))
+                    ifConditionsCollectionId++
+                }else{
+                    childrens.push(e)
+                }
+            })
+            e.childrens = childrens
+
         }
     }
   }

@@ -103,8 +103,8 @@ function findEleWithHtml(ele, ast, matchCache) {
             htmlEleArr.push(ast)
         }
 
-        ast.children &&
-            ast.children.forEach((child) => {
+        ast.childrens &&
+            ast.childrens.forEach((child) => {
                 traversesWithHtml(ele, child)
             })
     }
@@ -169,10 +169,10 @@ function wrapFunction(fun) {
     return midFun
 }
 
-function assembleConsoleInfo(nodes, position) {
+function assembleConsoleInfo(nodes, position ,remaek) {
     let attr = nodes[nodes.length - 1].attribute
     return {
-        name: `${attr || nodes[nodes.length - 1].value}`,
+        name: `${attr || nodes[nodes.length - 1].value} ${remaek}`,
         position: `start:${position[0]}  end:${position[1]}`,
     }
 }
@@ -211,7 +211,7 @@ function findRelevanceUrl(importPath,cssStyle) {
 }
 
 function repalceImportUrl(css) {
-    return css.replace(/@import\s*(?:url)?\s*\(?\s*['|"]*\s*([^'|"|\s]*)\s*['|"]*\s*\)?;*/gm,`@specialimport $1;`)
+    return css.replace(/@import\s*url\s*\(\s*['|"]*\s*([^'|"|\s]*)\s*['|"]*\s*\);*/gm,`@specialimport $1;`)
 }
 
 module.exports = {

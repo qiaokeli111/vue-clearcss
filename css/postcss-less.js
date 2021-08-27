@@ -7,9 +7,10 @@ let postcss = require("postcss"),
     less = require("less")
     util = require('./util')
 
-module.exports = (css) => {
+module.exports = (css,opt) => {
     return less
         .render(css, {
+            ...opt,
             sourceMap: {
                 outputSourceFiles: true,
             },

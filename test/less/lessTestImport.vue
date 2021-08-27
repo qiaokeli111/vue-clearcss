@@ -32,9 +32,9 @@ export default {
 </script>
 
 <style lang="less">
-@import url('./testCommon1.less');
 @import './testCommon1.less';
-@import '  ./testCommon1  ';
+@import './testCommon1';
+@import './testCommon2.less';
 ::v-deep .ss{
     background-color: yellow;
 }

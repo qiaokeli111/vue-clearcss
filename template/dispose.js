@@ -19,19 +19,19 @@ let typeDis = {
 
 let afterCombinator = {
   ' ': (source) => `
-                    let cyclic =  [].concat(currentEle.children || [])
+                    let cyclic =  [].concat(currentEle.childrens || [])
                     while (cyclic.length > 0) {
                         let tempCyclic = []
                         for (const childEle of cyclic) {
                             currentEle = childEle
-                            tempCyclic = (currentEle.children || []).concat(tempCyclic)
+                            tempCyclic = (currentEle.childrens || []).concat(tempCyclic)
                             ${source}
                         }
                         cyclic = tempCyclic
                     }
                     `,
   '>': (source) => `
-                    if (currentEle && (currentEle = currentEle.children)) {
+                    if (currentEle && (currentEle = currentEle.childrens)) {
                         for (const childEle of currentEle) {
                             currentEle = childEle
                             ${source}
@@ -49,9 +49,14 @@ let afterCombinator = {
                     currentEle = temp
                     `,
   '+': (source) => `
+                    let temp = currentEle
                     if (currentEle && (currentEle = matchEleAttr.util.findSibling(currentEle))) {
-                    ${source}
+                        for (const childEle of currentEle) {
+                            currentEle = childEle
+                            ${source}
+                        }
                     }
+                    currentEle = temp
                     `,
 }
 let combinator = {
@@ -76,9 +81,14 @@ let combinator = {
                     currentEle = temp
                 `,
   '+': (source) => `
+                let temp = currentEle
                 if (currentEle && (currentEle = matchEleAttr.util.findSibling(currentEle,false))) {
-                ${source}
+                    for (const childEle of currentEle) {
+                        currentEle = childEle
+                        ${source}
+                    }
                 }
+                currentEle = temp
                 `,
 }
 

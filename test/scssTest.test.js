@@ -48,4 +48,10 @@ describe('scssTest', () => {
   it('multiStyle', (done) => {
     commonTestFunction(done, './scss/scssTestMulti.vue')
   })
+  it('vueslot', (done) => {
+    commonTestFunction(done, './scss/scssTestSlot.vue')
+  })
+  it('vueif', (done) => {
+    commonTestFunction(done, './scss/scssIfTest.vue')
+  })
 })

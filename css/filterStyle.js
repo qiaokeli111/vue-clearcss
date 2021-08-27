@@ -8,7 +8,7 @@ var { validArr } = require("../util")
 module.exports = class filterStyle {
     constructor({ lang, content }, opt = {}) {
         this.filterCssArray = []
-        this.lang = lang || 'css'
+        this.lang = lang || "css"
         this.originCss = content
         this.context = null
         this.opt = opt
@@ -34,18 +34,17 @@ module.exports = class filterStyle {
     transformToCss(css, cssLang) {
         if (cssLang === "less") {
             var less = require("./postcss-less")
-            return less(util.repalceImportUrl(css))
+            return less(util.repalceImportUrl(css),{
+                'paths': [path.resolve(this.context.parseUrl,'..')],
+            })
         } else if (cssLang === "scss") {
             const comment = require("postcss-comment")
             var parse = require("postcss-node-sass")
-            return postcss([parse({ sourceComments: true })]).process(
-                util.repalceImportUrl(css),
-                {
-                    from: undefined,
-                    to: "temp.scss",
-                    parser: comment,
-                }
-            )
+            return postcss([parse({ sourceComments: true })]).process(util.repalceImportUrl(css), {
+                from: this.context.parseUrl,
+                to: "temp.scss",
+                parser: comment,
+            })
         } else if (cssLang === "sass") {
             var postcssSass = require("postcss-sass")
             return postcss([]).process(css, {
@@ -59,12 +58,14 @@ module.exports = class filterStyle {
     getCommentFun(lang) {
         function scss_lessComment(node) {
             let positionMap = node.root().raws.positionMap
-            let initLine = positionMap.get(
-                node.source.start.line
-            ).originalLine
+            let nodeMapVal = positionMap.get(node.source.start.line)
+            let initLine = nodeMapVal.originalLine
             return [
-                initLine,
-                node.source.end.line - node.source.start.line + initLine,
+                [
+                    initLine,
+                    node.source.end.line - node.source.start.line + initLine,
+                ],
+                ['.css','.less','.scss'].some(e=>nodeMapVal.sourceUrl.endsWith(e)) ? `from ${nodeMapVal.sourceUrl}` : ''
             ]
         }
         if (lang === "scss") {
@@ -73,7 +74,7 @@ module.exports = class filterStyle {
             return scss_lessComment
         } else {
             return function (node) {
-                return [node.source.start.line, node.source.end.line]
+                return [[node.source.start.line, node.source.end.line]]
             }
         }
     }
@@ -81,9 +82,11 @@ module.exports = class filterStyle {
         return {
             postcssPlugin: "fliterPlugin",
             Once(res) {
-                var sourceMap
+                var sourceMap,sourceUrl
                 try {
-                    sourceMap = res.source.input.map.consumer()._generatedMappings
+                    let PreviousMap = res.source.input.map.consumer()
+                    sourceMap = PreviousMap._generatedMappings
+                    sourceUrl = PreviousMap._absoluteSources
                 } catch (error) {
                     sourceMap = []
                 }
@@ -98,14 +101,17 @@ module.exports = class filterStyle {
                     ) {
                         return
                     }
-                    positionMap.set(e.generatedLine, e)
+                    positionMap.set(e.generatedLine, {
+                        ...e,
+                        sourceUrl: sourceUrl[e.source],
+                    })
                 })
                 res.raws.positionMap = positionMap
             },
             Rule(node) {
                 const parser = require("postcss-selector-parser")
                 parser((selectors) =>
-                    opts.transform(selectors, opts.getComment(node))
+                    opts.transform(selectors, ...opts.getComment(node))
                 ).processSync(node.selector)
             },
             AtRule: {
@@ -143,7 +149,7 @@ module.exports = class filterStyle {
         }
     }
 
-    transform(selectors, position) {
+    transform(selectors, position, remark = "") {
         selectors.nodes.forEach((selector) => {
             if (selector.type === "selector") {
                 let searchEle = util.findSearchEle(selector.nodes, this.context)
@@ -154,7 +160,7 @@ module.exports = class filterStyle {
                 )
                 if (searchEleResult.length === 0) {
                     this.setCssArray(
-                        util.assembleConsoleInfo(selector.nodes, position)
+                        util.assembleConsoleInfo(selector.nodes, position, remark)
                     )
                     return
                 }
@@ -165,7 +171,7 @@ module.exports = class filterStyle {
                 let result = templateFun(searchEleResult, util.matchEleAttr)
                 if (result && result.length === 0) {
                     this.setCssArray(
-                        util.assembleConsoleInfo(selector.nodes, position)
+                        util.assembleConsoleInfo(selector.nodes, position, remark)
                     )
                 }
             }

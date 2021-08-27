@@ -7,14 +7,16 @@
 //  多个style的情况   delete
 //  搜索的元素是id或tag    delete
 //  其他的css格式   
- 只处理了' '的选择器  >  delete  [attr] delete  + ~ delete,  :lastchild伪元素不兼容  slot delete
+ 只处理了' '的选择器  >  delete  [attr] delete 还有多种情况  + ~ delete,  :lastchild伪元素不兼容  slot delete
 //  选择器做缓存  html查找元素的缓存  动态便利的不做缓存因为相同可能性很小  delete
  优化vue解析的ast type 目前为1才是，3不是，其他未知
 //  多个页面同时调用
-兼容 @import  后缀 以@/开头
+兼容 @import  后缀 以@/开头  css
 
 //  https://www.w3ctech.com/topic/2226  postcss8
 //  媒体查询
 加配置文件
 
 打印加√
+
+注意事项
