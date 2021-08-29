@@ -8,7 +8,7 @@ Several CSS processing tools such as UNCSS are not available in Vue, so I used v
 
 [Vue]: https://cn.vuejs.org/v2/guide/
 [PostCSS]: https://github.com/postcss/postcss
-[中文介绍]: https://github.com/qiaokeli111/vue-clearcss/chineseReademe.md
+[中文介绍]: https://github.com/qiaokeli111/vue-clearcss/blob/master/Readme-cn.md
 
 ## Installation
 
