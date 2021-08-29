@@ -4,7 +4,8 @@
 this is a lib to find unUse css in [Vue] , can perfect parse SCSS and LESS , only nesting is supported for SASS
 
 As you iterate through the project, you get a lot of redundant and useless CSS left in your files. Unlike JS and HTML, which can be very cumbersome and unreliable to handle manually, so this library came into being,  
-Several CSS processing tools such as UNCSS are not available in Vue, so I used vue compilation tools and [PostCSS] to complete this function  
+Several CSS processing tools such as UNCSS are not available in Vue, so I used vue compilation tools and [PostCSS] to complete this function
+
 [Vue]: https://cn.vuejs.org/v2/guide/
 [PostCSS]: https://github.com/postcss/postcss
 [中文介绍]: https://github.com/qiaokeli111/vue-clearcss/chineseReademe.md

@@ -5,7 +5,7 @@
 网上有几个评价不错的css处理工具如uncss等都不能直接在vue里面使用，所以我利用了[vue]的编译工具和[postcss]来完成这个功能
 
 [Vue]: https://cn.vuejs.org/v2/guide/
-[PostCSS]: https://github.com/postcss/postcss
+[PostCSS]: https://github.com/qiaokeli111/vue-clearcss/blob/master/chineseReademe.md
 
 ## Installation
 
