@@ -4,7 +4,7 @@ const fs = require('fs')
 const globby = require('globby')
 
 module.exports = function filterCss(url) {
-  let baseUrl = process.argv[1]
+
   url = path.resolve(process.cwd(), url)
   let isDirectory = fs.lstatSync(url).isDirectory()
   let cssResolver

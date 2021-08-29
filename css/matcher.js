@@ -17,9 +17,14 @@ exports.matcherMethod = {
             return matcher.attrsMap.id === value
         }
     },
-    'attribute':(matcher, value)=>{
-        if (matcher.attrsMap && matcher.attrsMap.id) {
-            return matcher.attrsMap.id === value
+    'attribute':(matcher, attrName,attrValue,operator)=>{
+        if (matcher.attrsMap && attrName in matcher.attrsMap) {
+            if (operator.trim() === '=') {
+                return matcher.attrsMap[attrName] === attrValue
+            } else {
+                return matcher.attrsMap[attrName].includes(attrValue)
+            }
+            
         }
     },
 }

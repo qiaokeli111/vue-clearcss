@@ -12,7 +12,7 @@ let typeDis = {
   attribute: (
     node,
     source
-  ) => `if(matchEleAttr(currentEle, 'attribute', '${node.attribute}')){
+  ) => `if(matchEleAttr(currentEle, 'attribute', '${node.attribute}','${node.value || ''}','${node.operator || ''}')){
                         ${source}
                     }`,
 }

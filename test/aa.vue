@@ -1,27 +1,28 @@
 <template>
-    <view class="right">
-        <view v-if="item.is_completed == 1" class="rr"> </view>
-        <view v-else-if="item.is_completed == 2" class="rr3"> </view>
-        <view v-else class="project"> 33 </view>
-        <view class="ff" id='oo'> </view>
-    </view>
+ <div>
+   <div class="aa" ff='22r'></div>
+ </div>
 </template>
 
-<script></script>
-<style lang="scss">
-// .rr + .ff {
-//     padding-top: 15rpx;
-//     line-height: 1;
-//     font-size: 24rpx;
-// }
-// .rr3 + .ff {
-//     padding-top: 15rpx;
-//     line-height: 1;
-//     font-size: 24rpx;
-// }
-.rr3 + #oo {
-    padding-top: 15rpx;
-    line-height: 1;
-    font-size: 24rpx;
+<script>
+export default {
+mounted() {
+
+},
+data() {
+ return {
+   
+ };
+},
+methods: {
+
+},
+}
+</script>
+<style lang='scss' scoped>
+.aa {
+    &[ff]{
+        color: #000;
+    }
 }
 </style>

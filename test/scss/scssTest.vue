@@ -21,6 +21,7 @@
                 </a>
                 <p>aa</p>
             </div>
+            <div class="aa" ff='22r'></div>
         </div>
         <router-view />
     </div>
@@ -91,10 +92,10 @@ a {
 }
 
 // ~ + 选择器
-div~a{
+div+a{
     color: #000;
 }
-div+p{
+div~p{
     color: #000;
 }
 
@@ -103,6 +104,10 @@ div+p{
         background-color:lightblue;
     }
 }
-
+.aa {
+    &[ff~='22']{
+        color: #000;
+    }
+}
 </style>
 
