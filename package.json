@@ -1,19 +1,24 @@
 {
-  "name": "clearcss",
+  "name": "vue-clearcss",
   "version": "1.0.0",
-  "description": "",
+  "description": "this is a lib to find unusecss in vue",
   "main": "index.js",
   "scripts": {
     "test": "mocha --test",
     "perf": "node ./parsehtml --perf",
     "fl": "node ./develop"
   },
-  "author": "",
+  "author": "qiaokeli",
   "license": "ISC",
   "bin": {
     "unvuecss": "./bin/unvuecss.js"
   },
-  "devDependencies": {
+  "keywords": [
+    "vue",
+    "css",
+    "clear"
+  ],
+  "dependencies": {
     "chalk": "^4.1.2",
     "globby": "^11.0.4",
     "less": "^4.1.1",
@@ -24,11 +29,9 @@
     "postcss-comment": "^2.0.0",
     "postcss-less": "^5.0.0",
     "postcss-node-sass": "^3.1.1",
+    "postcss-sass": "^0.5.0",
     "postcss-selector-parser": "^6.0.6",
     "slash": "^3.0.0",
     "vue-template-compiler": "^2.6.14"
-  },
-  "dependencies": {
-    "postcss-sass": "^0.5.0"
   }
 }
