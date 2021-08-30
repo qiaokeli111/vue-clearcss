@@ -36,4 +36,7 @@ describe('cssTest', () => {
   it('simple import', (done) => {
     commonTestFunction(done, './css/cssTest.vue')
   })
+  it('animation', (done) => {
+    commonTestFunction(done, './css/cssAnimationTest.vue')
+  })
 })

@@ -1,16 +1,18 @@
 <template>
-    <div>
+    <div >
         <div class="like-image" />
         <div class="rr">
-            <div class="ff"></div>
+            <div class="ff">
+
+            </div>
         </div>
     </div>
 </template>
 
 <script></script>
 
-<style lang="css">
-@import url("./css/animation.css");
+<style lang="scss">
+@import './animation.scss';
 @keyframes play {
     0% {
         background-position: left;
@@ -22,7 +24,9 @@
 .like-image {
     animation-name: play;
 }
-.ff {
-    animation: mymove 5s infinite;
+.rr {
+    .ff {
+        animation: mymove 5s infinite;
+    }
 }
 </style>

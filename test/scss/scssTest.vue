@@ -109,5 +109,17 @@ div~p{
         color: #000;
     }
 }
+
+.aa{
+    animation-name: play;
+}
+@keyframes play {
+    0% {
+        background-position: left;
+    }
+    100% {
+        background-position: right;
+    }
+}
 </style>
 

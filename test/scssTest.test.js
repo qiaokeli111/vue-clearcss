@@ -54,4 +54,7 @@ describe('scssTest', () => {
   it('vueif', (done) => {
     commonTestFunction(done, './scss/scssIfTest.vue')
   })
+  it('animation', (done) => {
+    commonTestFunction(done, './scss/scssAnimationTest.vue')
+  })
 })

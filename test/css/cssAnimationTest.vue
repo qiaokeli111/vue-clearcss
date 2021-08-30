@@ -10,7 +10,7 @@
 <script></script>
 
 <style lang="css">
-@import url("./css/animation.css");
+@import url("./animation.css");
 @keyframes play {
     0% {
         background-position: left;

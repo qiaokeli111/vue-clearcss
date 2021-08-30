@@ -1,7 +1,7 @@
 {
   "name": "vue-clearcss",
   "version": "1.0.0",
-  "description": "this is a lib to find unusecss in vue",
+  "description": "find unusecss in vue 在vue组件中找到多余的css代码",
   "main": "index.js",
   "scripts": {
     "test": "mocha --test",
@@ -16,13 +16,14 @@
   "keywords": [
     "vue",
     "css",
-    "clear"
+    "clear",
+    "scss",
+    "less"
   ],
   "dependencies": {
     "chalk": "^4.1.2",
     "globby": "^11.0.4",
     "less": "^4.1.1",
-    "lodash.clonedeep": "^4.5.0",
     "minimist": "^1.2.5",
     "mocha": "^9.0.3",
     "postcss": "^8.3.6",

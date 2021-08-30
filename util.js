@@ -13,7 +13,9 @@ function findFirstNotEmpty () {
 }
 
 function getAttrFormStr (str) {
-  str = str.replace(/[\r\n\s]/gm, '')
+  str = str.replace(/('|")([^'|"]*)\1/gm,function (a,b,c) {
+      return a.replace(/[\r\n\s]/gm, '$blank$')
+  }).replace(/[\r\n\s]/gm, '')
   let isObj = /{.*}/.test(str)
   let isArr = /\[.*\]/.test(str)
   function getAttrInObj (str) {
@@ -22,7 +24,7 @@ function getAttrFormStr (str) {
       grouplist.forEach(e => {
         if (e) {
           let value = /(.*):/.exec(e)
-          attrList.push(value[1])
+          attrList.push(value?value[1]:e)
         }
       })
       return ''
@@ -46,7 +48,7 @@ function getAttrFormStr (str) {
   }
   let attrList = []
   if (isObj || isArr) {
-    var complex = str
+    var complex = str.replace(/[\r\n\s]/gm, '')
     if (isObj) {
       complex = getAttrInObj(complex)
     }
@@ -58,7 +60,7 @@ function getAttrFormStr (str) {
   var reg = /('|")([^'|"]*)\1/gm
   let attr = {}
   while ((attr = reg.exec(str))) {
-    attrList.push(attr[2])
+    attrList = attrList.concat(attr[2].split('$blank$'))
   }
 
   return attrList
