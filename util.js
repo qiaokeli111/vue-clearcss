@@ -88,14 +88,14 @@ function findEleIndexInParent (ele) {
 
 function findSibling (ele, next = true) {
   let currentIndex = findEleIndexInParent(ele)
-  let conditionId = ele.ifConditionsCollectionId
+  let conditionId = ele.ifId
   let children = ele.parent.childrens.filter(e => e.type === 1)
   var operator = next ? 1 : -1
-  function findIfConditionsCollention (id, index) {
+  function findIfConditionsCollention (id,forId, index) {
     let collectionArr = []
     while (id !== -1) {
       let collection = id
-        ? children.filter(e => e.ifConditionsCollectionId === id)
+        ? children.filter(e => e.ifId === id && e.forId === forId )
         : [children[index]]
       let existElse = collection.find(e => e.else)
       collectionArr = collectionArr.concat(collection)
@@ -103,7 +103,8 @@ function findSibling (ele, next = true) {
         break
       } else {
         index = index + collection.length * operator
-        id = children[index] ? children[index].ifConditionsCollectionId : -1
+        id = children[index] ? children[index].ifId : -1
+        forId = children[index] ? children[index].forId : -1
       }
     }
     return collectionArr
@@ -113,7 +114,7 @@ function findSibling (ele, next = true) {
     if (conditionId) {
       var tempSibling
       while ((tempSibling = children[(eleIndex += operator)])) {
-        if (tempSibling.ifConditionsCollectionId !== conditionId) {
+        if (tempSibling.ifId !== conditionId || (tempSibling.blockId === ele.blockId)) {
           break
         }
       }
@@ -122,9 +123,10 @@ function findSibling (ele, next = true) {
       siblingEle = children[(eleIndex += operator)]
     }
 
-    if (siblingEle && siblingEle.ifConditionsCollectionId) {
+    if (siblingEle && siblingEle.ifId) {
       return findIfConditionsCollention(
-        siblingEle.ifConditionsCollectionId,
+        siblingEle.ifId,
+        siblingEle.forId,
         eleIndex
       )
     } else {
@@ -137,13 +139,13 @@ function findSiblingAll (ele, next = true) {
   var currentIndex = findEleIndexInParent(ele),
   childrens = ele.parent.childrens.filter(e => e.type === 1),
   operator = next ? 1 : -1,
-  conditionId = ele.ifConditionsCollectionId
+  conditionId = ele.ifId
   if (typeof currentIndex === 'number') {
     var siblingEle, eleIndex= currentIndex
     if (conditionId) {
         var tempSibling
         while ((tempSibling = childrens[(eleIndex += operator)])) {
-          if (tempSibling.ifConditionsCollectionId !== conditionId) {
+          if (tempSibling.ifId !== conditionId) {
             break
           }
         }
