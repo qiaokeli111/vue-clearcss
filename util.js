@@ -88,7 +88,6 @@ function findEleIndexInParent (ele) {
 
 function findSibling (ele, next = true) {
   let currentIndex = findEleIndexInParent(ele)
-  let conditionId = ele.ifId
   let children = ele.parent.childrens.filter(e => e.type === 1)
   var operator = next ? 1 : -1
   function findIfConditionsCollention (id,forId, index) {
@@ -111,10 +110,10 @@ function findSibling (ele, next = true) {
   }
   if (typeof currentIndex === 'number') {
     var siblingEle, eleIndex= currentIndex
-    if (conditionId) {
+    if (ele.ifId || ele.blockScope) {
       var tempSibling
       while ((tempSibling = children[(eleIndex += operator)])) {
-        if (tempSibling.ifId !== conditionId || (tempSibling.blockId === ele.blockId)) {
+        if (tempSibling.ifId !== ele.ifId || (tempSibling.blockId === ele.blockId)) {
           break
         }
       }
