@@ -16,13 +16,31 @@
         <div class="tt"></div>
         <block v-if="ww">
             <view class="ff1" v-if="gt"> </view>
-            <view class="ww1" id='ww1'> </view>
+            <block v-if="gr">
+                <block v-if="rr">
+                    <div class="fe"></div>
+                </block>
+                <block>
+                    <block>
+                        <block>
+                            <block> 
+                                <div class="fe"></div>
+                            </block>
+                        </block>
+                    </block>
+                </block>
+                <block>
+                    <div class="fe" v-if="tt"></div>
+                </block>
+                <div class="fe"></div>
+            </block>
         </block>
         <block v-else>
             <view class="ff2"> </view>
-            <view class="ww2" id='ww2'> </view>
+            <view class="ww2" id="ww2"> </view>
         </block>
-         <!-- <block v-else>
+        <div id="fr"></div>
+        <!-- <block v-else>
             <view class="ff2" > </view>
             <view class="ww2" id='ww2'> </view>
         </block> -->
@@ -36,7 +54,7 @@
 
 <script></script>
 <style lang="scss">
-.ff1 + .ww1{
+.ff1 + #fr {
     color: #000;
 }
 // .tt + .ff1 {

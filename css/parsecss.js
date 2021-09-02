@@ -139,7 +139,7 @@ module.exports = class parsecss {
             ...i,
             parent: parentNode,
             forId: i.forId || node.forId,
-            blockScope: `${i.blockScope || ''}>>${blockId}${node.ifId?`if${node.ifId}`:''}`
+            blockScope: `${i.blockScope || ''}>>${blockId}${node.ifId?`if${node.ifId}`:''}${node.else?'!!':''}`
           }))
         )
         blockId++
