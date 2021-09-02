@@ -24,15 +24,15 @@
                     <block>
                         <block>
                             <block> 
-                                <div class="fe"></div>
+                                <div class="fe4"></div>
                             </block>
                         </block>
                     </block>
                 </block>
                 <block>
-                    <div class="fe" v-if="tt"></div>
+                    <div class="fe2" v-if="tt"></div>
                 </block>
-                <div class="fe"></div>
+                <div class="fe3"></div>
             </block>
         </block>
         <block v-else>
@@ -54,7 +54,7 @@
 
 <script></script>
 <style lang="scss">
-.ff1 + #fr {
+.fe + #fr {
     color: #000;
 }
 // .tt + .ff1 {

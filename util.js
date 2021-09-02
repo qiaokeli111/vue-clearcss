@@ -72,13 +72,12 @@ function validArr(arr) {
     return arr && Array.isArray(arr) && arr.length > 0
 }
 
-function findEleIndexInParent(ele) {
+function findEleIndexInParent(ele,childrens) {
     if (!ele) return
     let parent
     if ((parent = ele.parent)) {
         let i = 0,
-            e,
-            childrens = parent.childrens.filter((e) => e.type === 1)
+            e
         while ((e = childrens[i++])) {
             if (e === ele) {
                 break
@@ -87,10 +86,59 @@ function findEleIndexInParent(ele) {
         return i - 1
     }
 }
+var cacheScope = new Map()
+function findMutualArr(children,blockScope,isCache = true) {
+    if (blockScope && /if/.test(blockScope)) {
+        if (isCache && cacheScope.has(blockScope)) {
+            return cacheScope.get(blockScope)
+        }
+        let matchIf = blockScope.match(/\d*if\d*/g)
+        let matchIfReg = matchIf.map(e=>{
+            let attr = e.split('if')
+            return new RegExp(`(?<!>>${attr[0]})if${attr[1]}`)
+        })
+        children = children.filter(e=>{
+            let matchRes = true
+            for (let i = 0; i < matchIfReg.length; i++) {
+                const h = matchIfReg[i];
+                if (h.test(e.blockScope)) {
+                    matchRes =false
+                    break
+                }
+            }
+            return matchRes
+        })
+        if (isCache) {
+            cacheScope.set(blockScope,children)
+        }
+    }
+    return children
+}
+
+function getChildMutual(ele) {
+    let children = ele.parent.childrens.filter((e) => e.type === 1)
+    let blockScope = ele.blockScope
+    let currentIndex = findEleIndexInParent(ele,children)
+    children = findMutualArr(children,blockScope,false)
+    if (ele.ifId) {
+        var operator = next ? 1 : -1
+        var tempSibling,delIndex = currentIndex
+        while ((tempSibling = children[(eleIndex += operator)])) {
+            if (
+                tempSibling.ifId !== ele.ifId
+            ) {
+                break
+            }
+        }
+        next ? children.splice(currentIndex,delIndex-currentIndex) : children.splice(delIndex,currentIndex-delIndex)
+    }
+    return children
+}
 
 function findSibling(ele, next = true) {
-    let currentIndex = findEleIndexInParent(ele)
-    let children = ele.parent.childrens.filter((e) => e.type === 1)
+    cacheScope = new Map()
+    let children = getChildMutual(ele,next)   
+    let currentIndex = findEleIndexInParent(ele,children)
     var operator = next ? 1 : -1
     function findIfConditionsCollention(sibEle, index) {
         let collectionArr = []
@@ -114,12 +162,11 @@ function findSibling(ele, next = true) {
     if (typeof currentIndex === "number") {
         var siblingEle,
             eleIndex = currentIndex
-        if (ele.ifId || ele.blockScope) {
-            var tempSibling
+        if (ele.ifId) {
+            var tempSibling,delIndex = eleIndex
             while ((tempSibling = children[(eleIndex += operator)])) {
                 if (
-                    tempSibling.ifId !== ele.ifId &&
-                    validBlockLevel(tempSibling.blockScope, ele.blockScope)
+                    tempSibling.ifId !== ele.ifId
                 ) {
                     break
                 }
@@ -163,21 +210,21 @@ function findSiblingAll(ele, next = true) {
     return []
 }
 
-function validBlockLevel(sibScope, scope) {
-    if (!sibScope) return true
-    let sibScopeData = parseBlockScope(sibScope)
-    let scopeData = parseBlockScope(scope)
-    for (let i = 0; i < scopeData.length; i++) {
-        const block = scopeData[i]
-        if (block.ifId) {
-            let sibBlock = findBlockByIf(block.ifId, sibScopeData)
-            if (sibBlock && sibBlock.blockId !== block.blockId) {
-                return false
-            }
-        }
-    }
-    return true
-}
+// function validBlockLevel(sibScope, scope) {
+//     if (!sibScope) return true
+//     let sibScopeData = parseBlockScope(sibScope)
+//     let scopeData = parseBlockScope(scope)
+//     for (let i = 0; i < scopeData.length; i++) {
+//         const block = scopeData[i]
+//         if (block.ifId) {
+//             let sibBlock = findBlockByIf(block.ifId, sibScopeData)
+//             if (sibBlock && sibBlock.blockId !== block.blockId) {
+//                 return false
+//             }
+//         }
+//     }
+//     return true
+// }
 
 function findBlockByIf(id, data) {
     return data.find((e) => e.ifId === id)
