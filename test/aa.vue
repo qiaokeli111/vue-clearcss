@@ -29,7 +29,13 @@
                         </block>
                     </block>
                 </block>
-                <block>
+                <block v-if="ee">
+                    <div class="fe2" v-if="tt"></div>
+                </block>
+                <block v-else-if="fr">
+                    <div class="fe2" v-if="tt"></div>
+                </block>
+                <block v-else>
                     <div class="fe2" v-if="tt"></div>
                 </block>
                 <div class="fe3"></div>

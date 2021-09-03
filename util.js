@@ -162,6 +162,8 @@ function findSibling(ele, next = true) {
     if (typeof currentIndex === "number") {
         var siblingEle,
             eleIndex = currentIndex
+
+            findAllIf(children)
         if (ele.ifId) {
             var tempSibling,delIndex = eleIndex
             while ((tempSibling = children[(eleIndex += operator)])) {
@@ -208,6 +210,39 @@ function findSiblingAll(ele, next = true) {
         }
     }
     return []
+}
+
+function findAllIf(child){
+    let ifCondition = {}
+
+    child.forEach(e=>{
+        if (e.blockScope) {
+            let matchIf = e.blockScope.match(/\d*if\d*(!!)?/g)
+            let matchIfReg = matchIf.map(e=>{
+                var attr = e.split('if')
+                var ifId = attr[1].replace(/!!/,'').toString()
+                if (!ifCondition[ifId]) {
+                    ifCondition[ifId] = {}
+                }
+                ifCondition[ifId][attr[0].toString()] = attr[1].endsWith('!!')
+            })
+        }
+    })
+    let regIfArr = []
+    Object.keys(ifCondition).forEach(e=>{
+        let regIf = [],elseExist = false
+        Object.keys(ifCondition[e]).forEach(i=>{
+            let value = ifCondition[e][i]
+            if (value) {
+                elseExist = true
+            }
+            regIf.push(new RegExp(`(?<=>>${i})if${i}`))
+        })
+        if (!elseExist) {
+            regIf.push(new RegExp(`^((?!aaa).)*$`))
+        }
+    })
+    debugger;
 }
 
 // function validBlockLevel(sibScope, scope) {
