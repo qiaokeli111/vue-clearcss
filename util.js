@@ -90,7 +90,7 @@ function findMutualArr (children, blockScope) {
   if (blockScope && /if/.test(blockScope)) {
     let matchIfReg = []
     getBlockIf(blockScope, (ifId, blockId, isElse) => {
-        matchIfReg.push(new RegExp(`(?<!>>${blockId})if${ifId}`))
+      matchIfReg.push(new RegExp(`(?<!>>${blockId})if${ifId}`))
     })
 
     children = children.filter(e => {
@@ -111,17 +111,18 @@ function findMutualArr (children, blockScope) {
 function getChildMutual (ele, next) {
   let children = ele.parent.childrens.filter(e => e.type === 1)
   let blockScope = ele.blockScope
-  let currentIndex = findEleIndexInParent(ele, children)
   children = findMutualArr(children, blockScope, false)
+  let currentIndex = findEleIndexInParent(ele, children)
   if (ele.ifId) {
     var operator = next ? 1 : -1
     var tempSibling,
       delIndex = currentIndex
-    while ((tempSibling = children[(eleIndex += operator)])) {
+    while ((tempSibling = children[(delIndex += operator)])) {
       if (tempSibling.ifId !== ele.ifId) {
         break
       }
     }
+    delIndex -= operator
     next
       ? children.splice(currentIndex, delIndex - currentIndex)
       : children.splice(delIndex, currentIndex - delIndex)
@@ -133,58 +134,57 @@ function findSibling (ele, next = true) {
   let children = getChildMutual(ele, next)
   let eleIndex = findEleIndexInParent(ele, children)
   var operator = next ? 1 : -1
-  function findIfConditionsCollention (sibEle, index) {
-    let collectionArr = []
-    let { ifId, forId } = sibEle
-    while (ifId !== -1) {
-      let collection = ifId
-        ? children.filter(e => e.ifId === id && e.forId === forId)
-        : [sibEle]
-      let existElse = collection.find(e => e.else)
-      collectionArr = collectionArr.concat(collection)
-      if (existElse) {
-        break
-      } else {
-        index = index + collection.length * operator
-        ifId = children[index] ? children[index].ifId : -1
-        forId = children[index] ? children[index].forId : -1
-      }
-    }
-    return collectionArr
-  }
-  if (typeof eleIndex === 'number') {
-    let currentIndex = eleIndex
-    parseIfInBlock(children, ele)
 
-    if (siblingEle && (siblingEle.ifId || siblingEle.blockScope)) {
-      return findIfConditionsCollention(siblingEle, eleIndex)
-    } else {
-      return [siblingEle]
+  if (typeof eleIndex === 'number') {
+    function findIfConditionsCollention (child) {
+      let index = findEleIndexInParent(ele, child)
+      let collectionArr = []
+      let { ifId, forId } = child[(index += operator)]
+      if (!ifId) {
+        collectionArr = [child[index]]
+      } else {
+        while (ifId) {
+          let collection = child.filter(
+            e => e.ifId === ifId && e.forId === forId
+          )
+          let existElse = collection.find(e => e.else)
+          collectionArr = collectionArr.concat(collection)
+          if (existElse) {
+            break
+          } else {
+            index = index + collection.length * operator
+            let nextEle = child[index]
+            ifId = nextEle && nextEle.ifId
+            forId = nextEle && nextEle.forId
+            if (!ifId) {
+              collectionArr.push(child[index])
+            }
+          }
+        }
+      }
+      return collectionArr
     }
+    let currentIndex = eleIndex
+    let ifChild = parseIfInBlock(children, ele)
+    let maybeSibele = new Map()
+    ifChild.forEach(e => {
+      let collectionArr = findIfConditionsCollention(e)
+      collectionArr.forEach(i => maybeSibele.set(i, true))
+    })
+    return maybeSibele.keys()
   }
   return []
 }
 function findSiblingAll (ele, next = true) {
-  var currentIndex = findEleIndexInParent(ele),
-    childrens = ele.parent.childrens.filter(e => e.type === 1),
-    operator = next ? 1 : -1,
-    conditionId = ele.ifId
+  let childrens = getChildMutual(ele, next)
+  let currentIndex = findEleIndexInParent(ele, childrens)
+  var operator = next ? 1 : -1
   if (typeof currentIndex === 'number') {
-    var siblingEle,
-      eleIndex = currentIndex
-    if (conditionId) {
-      var tempSibling
-      while ((tempSibling = childrens[(eleIndex += operator)])) {
-        if (tempSibling.ifId !== conditionId) {
-          break
-        }
-      }
-      eleIndex -= operator
-    }
+   
     if (next) {
-      return childrens.slice(eleIndex + 1, childrens.length)
+      return childrens.slice(currentIndex + 1, childrens.length)
     } else {
-      return childrens.slice(0, eleIndex)
+      return childrens.slice(0, currentIndex)
     }
   }
   return []
@@ -200,12 +200,12 @@ function parseIfInBlock (child, ele) {
 
   child.forEach(e => {
     getBlockIf(e.blockScope, (ifId, blockId, isElse) => {
-        if (!muaIf[ifId]) {
-            if (!ifCondition[ifId]) {
-                ifCondition[ifId] = {}
-            }
-            ifCondition[ifId][blockId] = isElse
+      if (!muaIf[ifId]) {
+        if (!ifCondition[ifId]) {
+          ifCondition[ifId] = {}
         }
+        ifCondition[ifId][blockId] = isElse
+      }
     })
   })
   let regIfArr = []
@@ -231,9 +231,7 @@ function parseIfInBlock (child, ele) {
   let ifChild = ifCombine.map(e =>
     child.filter(ele => !ele.blockScope || e.test(ele.blockScope))
   )
-  let ss = ifChild.map(e => e.map(i => i.attrsMap))
-  console.log(ss)
-  debugger
+  return ifChild
 }
 
 function combine_arr (arr) {

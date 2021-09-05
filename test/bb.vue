@@ -22,11 +22,12 @@
                 <block v-else-if="fr">
                     <div class="fes3" v-if="tt"></div>
                 </block>
-                <block v-else>
+                <block v-else id="rr">
                     <div class="fes4" v-if="tt"></div>
                 </block>
                 <div class="fe3"></div>
             </block>
+            <view class="cf1" v-if="gt"> </view>
         </block>
         <block v-else>
             <view class="ff2"> </view>
@@ -39,7 +40,13 @@
 
 <script></script>
 <style lang="scss">
-.tt + #fr {
+// .fes3 ~ #fr {
+//     color: #000;
+// }
+// .fes3 + .fe3 {
+//     color: #000;
+// }
+.fe4 + .fe3{
     color: #000;
 }
 </style>
