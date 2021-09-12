@@ -44,7 +44,7 @@ module.exports = class filterStyle {
             })
         } else if (cssLang === "scss") {
             const comment = require("postcss-comment")
-            var parse = require("postcss-node-sass")
+            var parse = require("./postcss-scss")
             return postcss([parse({ sourceComments: true })]).process(
                 util.repalceImportUrl(css),
                 {
