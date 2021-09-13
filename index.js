@@ -3,7 +3,7 @@ const path = require('path')
 const fs = require('fs')
 const globby = require('globby')
 
-module.exports = function filterCss(url) {
+module.exports = function filterCss(url,opt={}) {
 
   url = path.resolve(process.cwd(), url)
   let isDirectory = fs.lstatSync(url).isDirectory()
@@ -15,12 +15,12 @@ module.exports = function filterCss(url) {
     })
     return Promise.all(
       paths.map((e) => {
-        let cssResolver = new parsecss(e)
+        let cssResolver = new parsecss(e,opt)
         return cssResolver.findUnuseCss()
       })
     )
   } else {
-    cssResolver = new parsecss(url, { mode: 'singlePage' })
+    cssResolver = new parsecss(url, { mode: 'singlePage' ,...opt })
     return cssResolver.findUnuseCss()
   }
 }

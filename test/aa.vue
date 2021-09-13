@@ -40,7 +40,7 @@
 
 <script></script>
 <style lang="scss">
-.tt + .cf1 {
+.tt + .cf122 {
     color: #000;
 }
 .fes3 ~ #fr {

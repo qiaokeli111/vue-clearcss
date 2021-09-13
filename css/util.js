@@ -167,7 +167,8 @@ function assembleConsoleInfo (nodes, position, remaek) {
   let attr = nodes[nodes.length - 1].attribute
   return {
     name: `${attr || nodes[nodes.length - 1].value} ${remaek}`,
-    position: `start:${position[0]}  end:${position[1]}`
+    position: `start:${position[0]}  end:${position[1]}`,
+    positionData:position
   }
 }
 

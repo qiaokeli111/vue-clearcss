@@ -5,6 +5,10 @@ var ifId = 1,
   forId = 1,
   blockId = 1,
   ignoreTag = ['block', 'template']
+
+var defaultOpt = {
+    console:true
+}
 module.exports = class parsecss {
   constructor (url, opt = {}) {
     this.script = null
@@ -17,6 +21,7 @@ module.exports = class parsecss {
     this.filterStyleProcess = []
     this.suffixName = ''
     this.mode = opt.mode || 'normal'
+    this.opt = {...defaultOpt,...opt}
     this.templateModule = {
       transformNode: function transformNode (node) {
         let children = node.children
@@ -60,7 +65,7 @@ module.exports = class parsecss {
     return Promise.all(
       this.filterStyleProcess.map(process => process.unuseCss(this))
     ).then(() => {
-      if (!this.argv.test) {
+      if (!this.argv.test && this.opt.console) {
         console.log(chalk.cyan(`file directory: ${this.parseUrl}`))
         if (this.suffixName !== '.vue' && this.mode === 'singlePage') {
           console.log(chalk.yellow('only parse vue SFC'))

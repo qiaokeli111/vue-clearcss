@@ -157,6 +157,7 @@ module.exports = class filterStyle {
                         this.setCssArray({
                             name: e,
                             position: `line: ${opts.getComment(node)[0]}`,
+                            positionData:[opts.getComment(node)[0]]
                         })
                     })
                 },
@@ -166,6 +167,7 @@ module.exports = class filterStyle {
                         name: `${node.params}  ${position[1] || opts.opt.url || ''}`,
                         aniName:node.params,
                         position: `start:${position[0][0]}  end:${position[0][1]}`,
+                        positionData:[position[0][0],position[0][1]]
                     })
                     node.each((childNode) => {
                         childNode.keyframesChild = true
