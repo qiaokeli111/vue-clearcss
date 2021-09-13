@@ -7,7 +7,8 @@ var ifId = 1,
   ignoreTag = ['block', 'template']
 
 var defaultOpt = {
-    console:true
+    console:true,
+    vueData:''
 }
 module.exports = class parsecss {
   constructor (url, opt = {}) {
@@ -41,7 +42,7 @@ module.exports = class parsecss {
     if (this.suffixName !== '.vue') {
       return
     }
-    var data = fs.readFileSync(path.resolve(process.execPath, url), 'utf-8')
+    var data = this.opt.vueData || fs.readFileSync(path.resolve(process.execPath, url), 'utf-8')
     var { validArr } = require('../util')
     var res = compiler.parseComponent(data, { pad: 'line' })
     const htmlast = compiler.compile(res.template.content, {
