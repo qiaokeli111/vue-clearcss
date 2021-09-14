@@ -1,8 +1,3 @@
-/**
- * POSTCSS-NODE-SASS
- * A PostCSS plugin to parse styles with node-sass
- */
-
  let postcss = require('postcss'),
  defaultNodeSass = require('sass');
 

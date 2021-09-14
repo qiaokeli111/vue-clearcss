@@ -43,14 +43,15 @@ module.exports = class filterStyle {
                 paths: [path.resolve(this.context.parseUrl, "..")],
             })
         } else if (cssLang === "scss") {
-            const comment = require("postcss-comment")
+            // const comment = require("postcss-comment")
+            const comment = require("postcss-scss")
             var parse = require("./postcss-scss")
             return postcss([parse({ sourceComments: true })]).process(
                 util.repalceImportUrl(css),
                 {
                     from: this.context.parseUrl,
                     to: "temp.scss",
-                    parser: comment,
+                    parser: comment
                 }
             )
         } else if (cssLang === "sass") {
