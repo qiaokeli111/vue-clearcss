@@ -26,7 +26,7 @@
 }
 .rr {
     .ff {
-        animation: mymove 5s infinite;
+        animation: mymove3 5s infinite;
     }
 }
 </style>

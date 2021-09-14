@@ -163,12 +163,13 @@ function wrapFunction (fun) {
   return midFun
 }
 
-function assembleConsoleInfo (nodes, position, remaek) {
+function assembleConsoleInfo (nodes, comment) {
+  let { position, from:remark }= comment
   let attr = nodes[nodes.length - 1].attribute
   return {
-    name: `${attr || nodes[nodes.length - 1].value} ${remaek}`,
+    name: `${attr || nodes[nodes.length - 1].value} ${remark}`,
     position: `start:${position[0]}  end:${position[1]}`,
-    positionData:position
+    positionData:comment
   }
 }
 

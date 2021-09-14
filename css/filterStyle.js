@@ -68,17 +68,18 @@ module.exports = class filterStyle {
             let positionMap = node.root().raws.positionMap
             let nodeMapVal = positionMap.get(node.source.start.line)
             let initLine = nodeMapVal.originalLine
-            return [
-                [
+            return {
+                position: [
                     initLine,
                     node.source.end.line - node.source.start.line + initLine,
                 ],
-                [".css", ".less", ".scss"].some((e) =>
+                from: [".css", ".less", ".scss"].some((e) =>
                     nodeMapVal.sourceUrl.endsWith(e)
                 )
                     ? `from ${nodeMapVal.sourceUrl}`
                     : "",
-            ]
+                sourceUrl:nodeMapVal.sourceUrl
+            }
         }
         if (lang === "scss") {
             return scss_lessComment
@@ -86,7 +87,9 @@ module.exports = class filterStyle {
             return scss_lessComment
         } else {
             return function (node) {
-                return [[node.source.start.line, node.source.end.line]]
+                return {
+                    position: [node.source.start.line, node.source.end.line],
+                }
             }
         }
     }
@@ -134,40 +137,43 @@ module.exports = class filterStyle {
                 if (node.keyframesChild) return
                 const parser = require("postcss-selector-parser")
                 let selector = parser((selectors) => {
+                    let comment = opts.getComment(node)
                     let result = opts.transform(
                         selectors,
-                        ...opts.getComment(node)
+                        comment
                     )
                     if (!result) {
-                        node.walkDecls('animation-name',decl=>{
+                        node.walkDecls("animation-name", (decl) => {
                             opts.animation.consumer.push(decl.value)
                         })
-                        node.walkDecls('animation',decl=>{
+                        node.walkDecls("animation", (decl) => {
                             let ani = parseAnimationShorthand(decl.value)
                             opts.animation.consumer.push(ani.name)
                         })
                     }
                 }).processSync(node.selector)
             },
-            Declaration: {},
             AtRule: {
                 specialimport: (node) => {
                     let url = node.params
                     return opts.addNewStyle(url).catch((e) => {
+                        let comment = opts.getComment(node)
                         this.setCssArray({
                             name: e,
-                            position: `line: ${opts.getComment(node)[0]}`,
-                            positionData:[opts.getComment(node)[0]]
+                            position: `line: ${comment.position[0]}`,
+                            positionData: comment,
                         })
                     })
                 },
                 keyframes: (node) => {
-                    let position = opts.getComment(node)
+                    let comment = opts.getComment(node)
                     opts.animation.producer.push({
-                        name: `${node.params}  ${position[1] || opts.opt.url || ''}`,
-                        aniName:node.params,
-                        position: `start:${position[0][0]}  end:${position[0][1]}`,
-                        positionData:[position[0][0],position[0][1]]
+                        name: `${node.params}  ${
+                            comment.from || opts.opt.url || ""
+                        }`,
+                        aniName: node.params,
+                        position: `start:${comment.position[0]}  end:${comment.position[1]}`,
+                        positionData: comment,
                     })
                     node.each((childNode) => {
                         childNode.keyframesChild = true
@@ -186,7 +192,7 @@ module.exports = class filterStyle {
             let lang = path.extname(realPath)
             let importProcess = new filterStyle(
                 { lang: lang.slice(1, lang.length), content },
-                { notPushParent: true, animation: this.animation,url }
+                { notPushParent: true, animation: this.animation, url }
             )
             return importProcess.unuseCss(this.context).then((res) => {
                 that.setCssArray(
@@ -198,7 +204,7 @@ module.exports = class filterStyle {
         }
     }
 
-    transform(selectors, position, remark = "") {
+    transform(selectors, comment) {
         let unuse
         selectors.walk((selector) => {
             if (selector.type === "selector") {
@@ -212,8 +218,7 @@ module.exports = class filterStyle {
                     this.setCssArray(
                         util.assembleConsoleInfo(
                             selector.nodes,
-                            position,
-                            remark
+                            comment
                         )
                     )
                     unuse = true
@@ -228,8 +233,7 @@ module.exports = class filterStyle {
                     this.setCssArray(
                         util.assembleConsoleInfo(
                             selector.nodes,
-                            position,
-                            remark
+                            comment
                         )
                     )
                     unuse = true
