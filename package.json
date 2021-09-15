@@ -13,6 +13,10 @@
   "bin": {
     "unvuecss": "./bin/unvuecss.js"
   },
+  "ignoreCss":[
+      "page",
+      {"reg":"page","attr":"g"}
+  ],
   "repository": "https://github.com/qiaokeli111/vue-clearcss.git",
   "homepage": "https://github.com/qiaokeli111/vue-clearcss/blob/master/Readme-cn.md",
   "keywords": [

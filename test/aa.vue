@@ -12,21 +12,14 @@
 <script></script>
 
 <style lang="scss">
-@import './scss/animation.scss';
-@keyframes play {
-    0% {
-        background-position: left;
-    }
-    100% {
-        background-position: right;
-    }
-}
-.like-image {
-    animation-name: play2;
-}
-.rr {
+// ignoreConfig [ "ff", {"reg":"page","attr":"g"}]
+
+.rr2 {
+    /*   ignorecss */
+    color: #000;
     .ff {
         animation: mymove3 5s infinite;
     }
 }
+
 </style>

@@ -258,10 +258,65 @@ function getBlockIf (scope, cb) {
   }
 }
 
+function getIgnoreConfig() {
+    const globby = require('globby')
+    const package = globby.sync(['package.json'], {
+        cwd: process.cwd(),
+        absolute: true,
+    })
+    if (validArr(package)) {
+        let ignoreConfig = []
+        package.forEach(packageName=>{
+            let pack =  require(packageName);
+            if (pack.ignoreCss) {
+                ignoreConfig = ignoreConfig.concat(pack.ignoreCss)
+            }
+        })
+        return ignoreConfig
+    }
+}
+
+function getType(ele) {
+    return Object.prototype.toString.call(ele)
+}
+
+function validIsIgnoreByConfing(nodes,ignores){
+    let node,i=0
+    while ((node = nodes[i++])) {
+        if (node.type === 'class') {
+            for (let i = 0; i < ignores.length; i++) {
+                const ignore = ignores[i];
+                let type = getType(ignore)
+                if (type === '[object String]') {
+                    if (ignore === node.value) return true
+                }else if(type === '[object Object]' && ignore.reg){
+                    if (new RegExp(ignore.reg,ignore.attr) .test(node.value)) return true
+                }
+            }
+        }
+    }
+}
+
+function validIsIgnoreByComment(node) {
+    let result = false
+    node.each(e=>{
+        if(e.type==='comment'){
+            let text = e.text
+            if (text.includes('ignorecss')) {
+                result = true
+            }
+        }
+    })
+    return result
+}
+
 module.exports = {
   findFirstNotEmpty,
   getAttrFormStr,
   validArr,
   findSibling,
-  findSiblingAll
+  findSiblingAll,
+  getIgnoreConfig,
+  validIsIgnoreByConfing,
+  validIsIgnoreByComment
 }

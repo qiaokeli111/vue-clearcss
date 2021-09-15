@@ -3,7 +3,7 @@ const util = require("./util")
 const fs = require("fs")
 const chalk = require("chalk")
 var path = require("path")
-var { validArr } = require("../util")
+var { validArr,validIsIgnoreByConfing,validIsIgnoreByComment } = require("../util")
 const parseAnimationShorthand = require("./animationShorthand")
 
 module.exports = class filterStyle {
@@ -136,6 +136,8 @@ module.exports = class filterStyle {
             },
             Rule(node) {
                 if (node.keyframesChild) return
+                if (validIsIgnoreByComment(node)) return
+               
                 const parser = require("postcss-selector-parser")
                 let selector = parser((selectors) => {
                     let comment = opts.getComment(node)
@@ -181,6 +183,21 @@ module.exports = class filterStyle {
                     })
                 },
             },
+            Comment(node){
+                let text = node.text
+                if (text.includes('ignoreConfig')) {
+                    let reg = /\[.*\]/
+                    let arrStr = text.match(reg)
+                    let ruleFun = new Function(`
+                        return ${arrStr}
+                    `)
+                    let ruleArr = ruleFun()
+                    if (validArr(ruleArr)) {
+                        opts.context.opt.ignore = ruleArr.concat(opts.context.opt.ignore)
+                    }
+                }
+
+            }
         }
     }
 
@@ -207,8 +224,9 @@ module.exports = class filterStyle {
 
     transform(selectors, comment) {
         let unuse
-        selectors.walk((selector) => {
+        selectors.each((selector) => {
             if (selector.type === "selector") {
+                if (validIsIgnoreByConfing(selector.nodes,this.context.opt.ignore)) return
                 let searchEle = util.findSearchEle(selector.nodes, this.context)
                 let searchEleResult = util.findEleWithHtml(
                     searchEle.searchEle,

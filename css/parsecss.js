@@ -8,7 +8,8 @@ var ifId = 1,
 
 var defaultOpt = {
     console:true,
-    vueData:''
+    vueData:'',
+    ignore:[]
 }
 module.exports = class parsecss {
   constructor (url, opt = {}) {
