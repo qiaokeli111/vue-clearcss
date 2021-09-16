@@ -13,9 +13,12 @@
   "bin": {
     "unvuecss": "./bin/unvuecss.js"
   },
-  "ignoreCss":[
-      "page",
-      {"reg":"page","attr":"g"}
+  "ignoreCss": [
+    "page",
+    {
+      "reg": "page",
+      "attr": "g"
+    }
   ],
   "repository": "https://github.com/qiaokeli111/vue-clearcss.git",
   "homepage": "https://github.com/qiaokeli111/vue-clearcss/blob/master/Readme-cn.md",
@@ -28,16 +31,17 @@
   ],
   "dependencies": {
     "chalk": "^4.1.2",
+    "deep-extend": "^0.6.0",
     "globby": "^11.0.4",
     "less": "^4.1.1",
     "minimist": "^1.2.5",
     "postcss": "^8.3.6",
-    "postcss-scss": "^4.0.0",
     "postcss-sass": "^0.5.0",
+    "postcss-scss": "^4.0.0",
     "postcss-selector-parser": "^6.0.6",
+    "sass": "^1.39.2",
     "slash": "^3.0.0",
-    "vue-template-compiler": "^2.6.14",
-    "sass": "^1.39.2"
+    "vue-template-compiler": "^2.6.14"
   },
   "devDependencies": {
     "mocha": "^9.0.3"

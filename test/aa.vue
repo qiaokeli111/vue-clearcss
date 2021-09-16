@@ -1,25 +1,28 @@
 <template>
-    <div >
+    <div>
         <div class="like-image" />
         <div class="rr">
-            <div class="ff">
-
-            </div>
+            <div class="ff"></div>
         </div>
     </div>
 </template>
 
 <script></script>
 
-<style lang="scss">
-// ignoreConfig [ "ff", {"reg":"page","attr":"g"}]
-
-.rr2 {
-    /*   ignorecss */
-    color: #000;
-    .ff {
-        animation: mymove3 5s infinite;
+<style lang="css">
+@import url("./css/animation.css"); 
+@keyframes play {
+    0% {
+        background-position: left;
+    }
+    100% {
+        background-position: right;
     }
 }
-
+.like-image {
+    animation-name: play;
+}
+.ff23 {
+    animation: mymove 5s infinite;
+}
 </style>

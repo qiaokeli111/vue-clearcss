@@ -3,7 +3,12 @@ const util = require("./util")
 const fs = require("fs")
 const chalk = require("chalk")
 var path = require("path")
-var { validArr,validIsIgnoreByConfing,validIsIgnoreByComment } = require("../util")
+var deepExtend = require("deep-extend")
+var {
+    validArr,
+    validIsIgnoreByConfing,
+    validIsIgnoreByComment,
+} = require("../util")
 const parseAnimationShorthand = require("./animationShorthand")
 
 module.exports = class filterStyle {
@@ -13,6 +18,7 @@ module.exports = class filterStyle {
         this.originCss = content
         this.context = null
         this.opt = opt
+        this.ignore = opt.ignore
         this.getComment = this.getCommentFun(lang)
         this.animation = opt.animation || {
             producer: [],
@@ -51,7 +57,7 @@ module.exports = class filterStyle {
                 {
                     from: this.context.parseUrl,
                     to: "temp.scss",
-                    parser: comment
+                    parser: comment,
                 }
             )
         } else if (cssLang === "sass") {
@@ -79,7 +85,7 @@ module.exports = class filterStyle {
                 )
                     ? `from ${nodeMapVal.sourceUrl}`
                     : "",
-                sourceUrl:nodeMapVal.sourceUrl
+                sourceUrl: nodeMapVal.sourceUrl,
             }
         }
         if (lang === "scss") {
@@ -94,7 +100,7 @@ module.exports = class filterStyle {
             }
         }
     }
-    fliterPlugin(opts = {}) {
+    fliterPlugin(fStyle = {}) {
         return {
             postcssPlugin: "fliterPlugin",
             Once(res) {
@@ -125,11 +131,11 @@ module.exports = class filterStyle {
                 res.raws.positionMap = positionMap
             },
             OnceExit(node) {
-                if (!opts.opt.animation) {
-                    let { producer, consumer } = opts.animation
+                if (!fStyle.opt.animation) {
+                    let { producer, consumer } = fStyle.animation
                     producer.forEach((e) => {
                         if (!consumer.some((i) => i === e.aniName)) {
-                            opts.setCssArray(e)
+                            fStyle.setCssArray(e)
                         }
                     })
                 }
@@ -137,21 +143,18 @@ module.exports = class filterStyle {
             Rule(node) {
                 if (node.keyframesChild) return
                 if (validIsIgnoreByComment(node)) return
-               
+
                 const parser = require("postcss-selector-parser")
                 let selector = parser((selectors) => {
-                    let comment = opts.getComment(node)
-                    let result = opts.transform(
-                        selectors,
-                        comment
-                    )
+                    let comment = fStyle.getComment(node)
+                    let result = fStyle.transform(selectors, comment)
                     if (!result) {
                         node.walkDecls("animation-name", (decl) => {
-                            opts.animation.consumer.push(decl.value)
+                            fStyle.animation.consumer.push(decl.value)
                         })
                         node.walkDecls("animation", (decl) => {
                             let ani = parseAnimationShorthand(decl.value)
-                            opts.animation.consumer.push(ani.name)
+                            fStyle.animation.consumer.push(ani.name)
                         })
                     }
                 }).processSync(node.selector)
@@ -159,8 +162,8 @@ module.exports = class filterStyle {
             AtRule: {
                 specialimport: (node) => {
                     let url = node.params
-                    return opts.addNewStyle(url).catch((e) => {
-                        let comment = opts.getComment(node)
+                    return fStyle.addNewStyle(url).catch((e) => {
+                        let comment = fStyle.getComment(node)
                         this.setCssArray({
                             name: e,
                             position: `line: ${comment.position[0]}`,
@@ -169,23 +172,26 @@ module.exports = class filterStyle {
                     })
                 },
                 keyframes: (node) => {
-                    let comment = opts.getComment(node)
-                    opts.animation.producer.push({
+                    let comment = fStyle.getComment(node)
+                    fStyle.animation.producer.push({
                         name: `${node.params}  ${
-                            comment.from || opts.opt.url || ""
+                            comment.from || fStyle.opt.url || ""
                         }`,
                         aniName: node.params,
                         position: `start:${comment.position[0]}  end:${comment.position[1]}`,
-                        positionData: comment,
+                        positionData: deepExtend(comment,{
+                            from:fStyle.opt.url || comment.from,
+                            sourceUrl: fStyle.opt.url || comment.sourceUrl,
+                        }),
                     })
                     node.each((childNode) => {
                         childNode.keyframesChild = true
                     })
                 },
             },
-            Comment(node){
+            Comment(node) {
                 let text = node.text
-                if (text.includes('ignoreConfig')) {
+                if (text.includes("ignoreConfig")) {
                     let reg = /\[.*\]/
                     let arrStr = text.match(reg)
                     let ruleFun = new Function(`
@@ -193,17 +199,19 @@ module.exports = class filterStyle {
                     `)
                     let ruleArr = ruleFun()
                     if (validArr(ruleArr)) {
-                        opts.context.opt.ignore = ruleArr.concat(opts.context.opt.ignore)
+                        fStyle.context.opt.ignore = ruleArr.concat(
+                            fStyle.context.opt.ignore
+                        )
                     }
                 }
-
-            }
+            },
         }
     }
 
     addNewStyle(url) {
         let importPath = path.resolve(this.context.parseUrl, "..", url)
         let realPath = util.findRelevanceUrl(importPath, this.lang)
+
         if (realPath) {
             let that = this
             let content = fs.readFileSync(realPath, "utf-8")
@@ -214,7 +222,15 @@ module.exports = class filterStyle {
             )
             return importProcess.unuseCss(this.context).then((res) => {
                 that.setCssArray(
-                    res.map((e) => ({ ...e, name: `${e.name} from ${url}` }))
+                    res.map((e) => {
+                        return deepExtend(e, {
+                            name: `${e.name} from ${url}`,
+                            positionData: {
+                                sourceUrl: url,
+                                from: `from ${url}`,
+                            },
+                        })
+                    })
                 )
             })
         } else {
@@ -226,7 +242,13 @@ module.exports = class filterStyle {
         let unuse
         selectors.each((selector) => {
             if (selector.type === "selector") {
-                if (validIsIgnoreByConfing(selector.nodes,this.context.opt.ignore)) return
+                if (
+                    validIsIgnoreByConfing(
+                        selector.nodes,
+                        this.context.opt.ignore
+                    )
+                )
+                    return
                 let searchEle = util.findSearchEle(selector.nodes, this.context)
                 let searchEleResult = util.findEleWithHtml(
                     searchEle.searchEle,
@@ -235,10 +257,7 @@ module.exports = class filterStyle {
                 )
                 if (searchEleResult.length === 0) {
                     this.setCssArray(
-                        util.assembleConsoleInfo(
-                            selector.nodes,
-                            comment
-                        )
+                        util.assembleConsoleInfo(selector.nodes, comment)
                     )
                     unuse = true
                     return
@@ -250,10 +269,7 @@ module.exports = class filterStyle {
                 let result = templateFun(searchEleResult, util.matchEleAttr)
                 if (result && result.length === 0) {
                     this.setCssArray(
-                        util.assembleConsoleInfo(
-                            selector.nodes,
-                            comment
-                        )
+                        util.assembleConsoleInfo(selector.nodes, comment)
                     )
                     unuse = true
                 }

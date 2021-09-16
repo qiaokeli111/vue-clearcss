@@ -167,7 +167,7 @@ function assembleConsoleInfo (nodes, comment) {
   let { position, from:remark }= comment
   let attr = nodes[nodes.length - 1].attribute
   return {
-    name: `${attr || nodes[nodes.length - 1].value} ${remark}`,
+    name: `${attr || nodes[nodes.length - 1].value} ${remark || ''}`,
     position: `start:${position[0]}  end:${position[1]}`,
     positionData:comment
   }
