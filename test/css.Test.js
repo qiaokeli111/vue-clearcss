@@ -39,4 +39,7 @@ describe('cssTest', () => {
   it('animation', (done) => {
     commonTestFunction(done, './css/cssAnimationTest.vue')
   })
+  it('ignore css', (done) => {
+    commonTestFunction(done, './css/cssIgnore.vue')
+  })
 })

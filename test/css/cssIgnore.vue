@@ -1,0 +1,21 @@
+<template>
+ <div class="qw">
+   ss
+ </div>
+</template>
+<style  >
+/* ignoreConfig ['ff'] */
+.qw{
+    color: #000;
+}
+.page{
+    color: #000;
+}
+.ff{
+    color: #000;
+}
+.re{
+    /* ignorecss */
+    color: #000;
+}
+</style>

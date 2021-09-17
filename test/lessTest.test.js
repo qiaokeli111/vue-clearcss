@@ -48,4 +48,7 @@ describe('lessTest', () => {
   it('multiStyle', (done) => {
     commonTestFunction(done, './less/lessTestMulti.vue')
   })
+  it('ignore css', (done) => {
+    commonTestFunction(done, './less/lessIgnore.vue')
+  })
 })

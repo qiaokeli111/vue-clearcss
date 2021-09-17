@@ -10,7 +10,7 @@
 <script></script>
 
 <style lang="css">
-@import url("./css/animation.css"); 
+@import url("./css/animation.css");
 @keyframes play {
     0% {
         background-position: left;
@@ -22,7 +22,7 @@
 .like-image {
     animation-name: play;
 }
-.ff23 {
+.ff {
     animation: mymove 5s infinite;
 }
 </style>
