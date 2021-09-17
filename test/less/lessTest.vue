@@ -63,6 +63,7 @@ export default {
 }
 // 转义
 @min768: ~'(min-width: 768px)';
+
 .gg {
   @media @min768 {
     font-size: 1.2rem;
