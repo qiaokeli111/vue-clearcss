@@ -283,7 +283,7 @@ function getType(ele) {
 function validIsIgnoreByConfing(nodes,ignores){
     let node,i=0
     while ((node = nodes[i++])) {
-        if (node.type === 'class') {
+        try {
             for (let i = 0; i < ignores.length; i++) {
                 const ignore = ignores[i];
                 let type = getType(ignore)
@@ -293,6 +293,8 @@ function validIsIgnoreByConfing(nodes,ignores){
                     if (new RegExp(ignore.reg,ignore.attr) .test(node.value)) return true
                 }
             }
+        } catch (error) {
+            
         }
     }
 }
