@@ -44,6 +44,7 @@
     "vue-template-compiler": "^2.6.14"
   },
   "devDependencies": {
-    "mocha": "^9.0.3"
+    "mocha": "^9.0.3",
+    "pkg-dir": "^5.0.0"
   }
 }

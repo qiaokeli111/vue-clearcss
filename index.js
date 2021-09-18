@@ -8,7 +8,7 @@ module.exports = function filterCss(url,opt={}) {
   url = path.resolve(process.cwd(), url)
   let isDirectory = fs.lstatSync(url).isDirectory()
 
-  let ignoreConfig = getIgnoreConfig()
+  let ignoreConfig = getIgnoreConfig(url)
   if (validArr(ignoreConfig)) {
       opt.ignore = ignoreConfig.concat(opt.ignore)
   }

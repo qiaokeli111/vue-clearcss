@@ -258,10 +258,14 @@ function getBlockIf (scope, cb) {
   }
 }
 
-function getIgnoreConfig() {
+function getIgnoreConfig(url) {
+    let pkgdir = require('pkg-dir')
+    var pkg = pkgdir.sync(url)
     const globby = require('globby')
+    var slash = require('slash')
+
     const package = globby.sync(['package.json'], {
-        cwd: process.cwd(),
+        cwd: slash(pkg || process.cwd()),
         absolute: true,
     })
     if (validArr(package)) {

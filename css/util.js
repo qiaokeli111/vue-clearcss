@@ -207,7 +207,7 @@ function findRelevanceUrl (importPath, cssStyle) {
 }
 
 function repalceImportUrl (css) {
-    var slash = require('slash')
+  var slash = require('slash')
   return css
     .replace(
       /@import\s*url\s*\(\s*['|"]*\s*([^'|"|\s]*)\s*['|"]*\s*\);*/gm,
