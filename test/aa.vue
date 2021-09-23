@@ -32,7 +32,7 @@ export default {
 </script>
 
 <style lang="scss">
-// @import url('./scss/testCommon.scss');
+// @import './scss/testCommon.scss';
 @import './css/testCommon.css';
 ::v-deep .ss{
     background-color: yellow;

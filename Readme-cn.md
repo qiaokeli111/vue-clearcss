@@ -7,6 +7,8 @@
 [Vue]: https://cn.vuejs.org/v2/guide/
 [PostCSS]: https://github.com/qiaokeli111/vue-clearcss/blob/master/chineseReademe.md
 
+配合vscode扩展 (搜索 vue-cleacss-ext 在 vscode扩展)
+![avatar](https://s3.bmp.ovh/imgs/2021/09/bfae04de325f707a.gif)
 ## Installation
 
 

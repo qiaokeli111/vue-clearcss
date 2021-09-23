@@ -1,5 +1,6 @@
  let postcss = require('postcss'),
  defaultNodeSass = require('sass');
+ var { renderAfterReplace } = require('./util')
 
 module.exports = opt => ({
  postcssPlugin: 'postcss-node-sass',
@@ -28,7 +29,7 @@ module.exports = opt => ({
      let res = sass.renderSync(opt)
      return Promise.resolve(res).then(res => {
         includedFiles = res.stats.includedFiles.filter((item, pos, array) => array.indexOf(item) === pos)
-        return postcss.parse(res.css.toString(), {
+        return postcss.parse(renderAfterReplace(res.css.toString()), {
             from: result.opts.from,
             map: {
                 prev: res.map ? JSON.parse(res.map.toString()) : ''

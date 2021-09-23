@@ -164,12 +164,12 @@ function wrapFunction (fun) {
 }
 
 function assembleConsoleInfo (nodes, comment) {
-  let { position, from:remark }= comment
+  let { position, from: remark } = comment
   let attr = nodes[nodes.length - 1].attribute
   return {
     name: `${attr || nodes[nodes.length - 1].value} ${remark || ''}`,
     position: `start:${position[0]}  end:${position[1]}`,
-    positionData:comment
+    positionData: comment
   }
 }
 
@@ -206,29 +206,70 @@ function findRelevanceUrl (importPath, cssStyle) {
   return realpath
 }
 
-function repalceImportUrl (css,vueConfig) {
+function renderAfterReplace (css) {
+  return css.replace(
+    /@import\s*['|"]*\s*([^'|"|\s]*)\s*['|"]*\s*;*/gm,
+    `@specialimport $1;`
+  )
+}
+
+function repalceImportUrl (css, vueConfig) {
   var slash = require('slash')
-  
+
   let replaceCss = css.replace(
     /@import\s*url\s*\(\s*['|"]*\s*([^'|"|\s]*)\s*['|"]*\s*\);*/gm,
     `@specialimport $1;`
   )
-  vueConfig.forEach(vueConfigData=>{
+  vueConfig.forEach(vueConfigData => {
     let alias = {}
     var i
     if ((i = vueConfigData) && (i = i.configureWebpack)) {
-        if(Object.prototype.toString.call(i) === '[object Function]'){
-            i = i()
-        }
-        if (Object.prototype.toString.call(i) === '[object Object]' && (i = i.resolve) &&  (i = i.alias)) {
-            alias = i
-        }
+      if (Object.prototype.toString.call(i) === '[object Function]') {
+        i = i()
+      }
+      if (
+        Object.prototype.toString.call(i) === '[object Object]' &&
+        (i = i.resolve) &&
+        (i = i.alias)
+      ) {
+        alias = i
+      }
     }
-    Object.keys(alias).forEach(e=>{
-        replaceCss = replaceCss.replace(new RegExp(`~${e}`,'gm'), slash(alias[e]))
-      })
+    Object.keys(alias).forEach(e => {
+      replaceCss = replaceCss.replace(
+        new RegExp(`~${e}`, 'gm'),
+        slash(alias[e])
+      )
+    })
   })
-  
+  vueConfig.forEach(vueConfigData => {
+    let alias = {}
+    var i
+    if ((i = vueConfigData) && (i = i.chainWebpack)) {
+      const Config = require('webpack-chain')
+      // Instantiate the configuration with a new API
+      const config = new Config()
+      if (Object.prototype.toString.call(i) === '[object Function]') {
+        i(config)
+        var chainConfig = config.toConfig()
+        if (
+          Object.prototype.toString.call(chainConfig) === '[object Object]' &&
+          (i = chainConfig) &&
+          (i = i.resolve) &&
+          (i = i.alias)
+        ) {
+          alias = i
+        }
+      }
+    }
+    Object.keys(alias).forEach(e => {
+      replaceCss = replaceCss.replace(
+        new RegExp(`~${e}`, 'gm'),
+        slash(alias[e])
+      )
+    })
+  })
+
   return replaceCss
 }
 
@@ -239,5 +280,6 @@ module.exports = {
   matchEleAttr: wrapFunction(matchEleAttr),
   assembleConsoleInfo,
   findRelevanceUrl,
-  repalceImportUrl
+  repalceImportUrl,
+  renderAfterReplace
 }

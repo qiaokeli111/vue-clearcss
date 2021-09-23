@@ -45,11 +45,10 @@ module.exports = class filterStyle {
     transformToCss(css, cssLang) {
         if (cssLang === "less") {
             var less = require("./postcss-less")
-            return less(util.repalceImportUrl(css), {
+            return less(util.repalceImportUrl(css,this.context.opt.vueConfig), {
                 paths: [path.resolve(this.context.parseUrl, "..")],
             })
         } else if (cssLang === "scss") {
-            // const comment = require("postcss-comment")
             const comment = require("postcss-scss")
             var parse = require("./postcss-scss")
             return postcss([parse({ sourceComments: true })]).process(
@@ -67,7 +66,7 @@ module.exports = class filterStyle {
                 syntax: postcssSass,
             })
         } else {
-            return Promise.resolve(postcss.parse(util.repalceImportUrl(css)))
+            return Promise.resolve(postcss.parse(util.repalceImportUrl(css,this.context.opt.vueConfig)))
         }
     }
     getCommentFun(lang) {

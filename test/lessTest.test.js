@@ -43,7 +43,7 @@ describe('lessTest', () => {
     commonTestFunction(done, './less')
   })
   it('importcss', (done) => {
-    commonTestFunction(done, './less/lessTestMulti.vue')
+    commonTestFunction(done, './less/lessTestImport.vue')
   })
   it('multiStyle', (done) => {
     commonTestFunction(done, './less/lessTestMulti.vue')

@@ -10,6 +10,8 @@ Several CSS processing tools such as UNCSS are not available in Vue, so I used v
 [PostCSS]: https://github.com/postcss/postcss
 [中文介绍]: https://github.com/qiaokeli111/vue-clearcss/blob/master/Readme-cn.md
 
+Use with vscode extension (search vue-cleacss-ext in vscode)
+![avatar](https://s3.bmp.ovh/imgs/2021/09/bfae04de325f707a.gif)
 ## Installation
 
 
