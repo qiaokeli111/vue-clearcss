@@ -206,14 +206,30 @@ function findRelevanceUrl (importPath, cssStyle) {
   return realpath
 }
 
-function repalceImportUrl (css) {
+function repalceImportUrl (css,vueConfig) {
   var slash = require('slash')
-  return css
-    .replace(
-      /@import\s*url\s*\(\s*['|"]*\s*([^'|"|\s]*)\s*['|"]*\s*\);*/gm,
-      `@specialimport $1;`
-    )
-    .replace(/~@/, slash(path.resolve(process.cwd(),'src')))
+  
+  let replaceCss = css.replace(
+    /@import\s*url\s*\(\s*['|"]*\s*([^'|"|\s]*)\s*['|"]*\s*\);*/gm,
+    `@specialimport $1;`
+  )
+  vueConfig.forEach(vueConfigData=>{
+    let alias = {}
+    var i
+    if ((i = vueConfigData) && (i = i.configureWebpack)) {
+        if(Object.prototype.toString.call(i) === '[object Function]'){
+            i = i()
+        }
+        if (Object.prototype.toString.call(i) === '[object Object]' && (i = i.resolve) &&  (i = i.alias)) {
+            alias = i
+        }
+    }
+    Object.keys(alias).forEach(e=>{
+        replaceCss = replaceCss.replace(new RegExp(`~${e}`,'gm'), slash(alias[e]))
+      })
+  })
+  
+  return replaceCss
 }
 
 module.exports = {

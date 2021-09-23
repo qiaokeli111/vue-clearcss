@@ -9,7 +9,8 @@ var ifId = 1,
 var defaultOpt = {
     console:true,
     vueData:'',
-    ignore:[]
+    ignore:[],
+    vueConfig:[]
 }
 module.exports = class parsecss {
   constructor (url, opt = {}) {
@@ -37,7 +38,7 @@ module.exports = class parsecss {
   }
   initParse (url) {
     var fs = require('fs')
-    const compiler = require('vue-template-compiler')
+    const compiler = require('vue-template-compiler/build')
     var path = require('path')
     this.suffixName = path.extname(path.resolve(process.execPath, url))
     if (this.suffixName !== '.vue') {

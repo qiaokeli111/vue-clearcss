@@ -258,6 +258,25 @@ function getBlockIf (scope, cb) {
   }
 }
 
+function getVueConfig(url) {
+    let pkgdir = require('pkg-dir')
+    var pkg = pkgdir.sync(url)
+    const globby = require('globby')
+    var slash = require('slash')
+
+    const vueConfig = globby.sync(['vue.config.js'], {
+        cwd: slash(pkg || process.cwd()),
+        absolute: true,
+    })
+    var vueConfigData = []
+    if (validArr(vueConfig)) {
+        vueConfig.forEach(e=>{
+            vueConfigData.push(require(e))
+        })
+    }
+    return vueConfigData
+}
+
 function getIgnoreConfig(url) {
     let pkgdir = require('pkg-dir')
     var pkg = pkgdir.sync(url)
@@ -324,5 +343,6 @@ module.exports = {
   findSiblingAll,
   getIgnoreConfig,
   validIsIgnoreByConfing,
-  validIsIgnoreByComment
+  validIsIgnoreByComment,
+  getVueConfig
 }

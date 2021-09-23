@@ -2,7 +2,7 @@ var parsecss = require('./css/parsecss')
 const path = require('path')
 const fs = require('fs')
 const globby = require('globby')
-var { getIgnoreConfig, validArr } = require('./util')
+var { getIgnoreConfig, validArr, getVueConfig } = require('./util')
 
 module.exports = function filterCss(url,opt={}) {
   url = path.resolve(process.cwd(), url)
@@ -12,6 +12,8 @@ module.exports = function filterCss(url,opt={}) {
   if (validArr(ignoreConfig)) {
       opt.ignore = ignoreConfig.concat(opt.ignore)
   }
+  let vueConfig = getVueConfig(url)
+  opt.vueConfig = vueConfig
   let cssResolver
   if (isDirectory) {
     const paths = globby.sync(['**.vue'], {

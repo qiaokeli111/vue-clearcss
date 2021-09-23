@@ -53,7 +53,7 @@ module.exports = class filterStyle {
             const comment = require("postcss-scss")
             var parse = require("./postcss-scss")
             return postcss([parse({ sourceComments: true })]).process(
-                util.repalceImportUrl(css),
+                util.repalceImportUrl(css,this.context.opt.vueConfig),
                 {
                     from: this.context.parseUrl,
                     to: "temp.scss",
