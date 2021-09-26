@@ -1,6 +1,6 @@
 {
   "name": "vue-clearcss",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "find unusecss in vue 在vue组件中找到多余的css代码",
   "main": "index.js",
   "scripts": {
