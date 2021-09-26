@@ -167,6 +167,7 @@ module.exports = class filterStyle {
                             name: e,
                             position: `line: ${comment.position[0]}`,
                             positionData: comment,
+                            errType:1
                         })
                     })
                 },
@@ -233,7 +234,7 @@ module.exports = class filterStyle {
                 )
             })
         } else {
-            return Promise.reject(`@import not found this file ${url} `)
+            return Promise.reject(`@import not found file ${url} `)
         }
     }
 
@@ -276,6 +277,9 @@ module.exports = class filterStyle {
         })
         return unuse
     }
+    // 错误类型 errType
+    // undefined  普通类型
+    // 1  文件没有找到
     setCssArray(css) {
         this.filterCssArray = this.filterCssArray.concat(css)
     }

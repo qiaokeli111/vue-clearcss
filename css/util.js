@@ -220,55 +220,57 @@ function repalceImportUrl (css, vueConfig) {
     /@import\s*url\s*\(\s*['|"]*\s*([^'|"|\s]*)\s*['|"]*\s*\);*/gm,
     `@specialimport $1;`
   )
-  vueConfig.forEach(vueConfigData => {
-    let alias = {}
-    var i
-    if ((i = vueConfigData) && (i = i.configureWebpack)) {
-      if (Object.prototype.toString.call(i) === '[object Function]') {
-        i = i()
-      }
-      if (
-        Object.prototype.toString.call(i) === '[object Object]' &&
-        (i = i.resolve) &&
-        (i = i.alias)
-      ) {
-        alias = i
-      }
-    }
-    Object.keys(alias).forEach(e => {
-      replaceCss = replaceCss.replace(
-        new RegExp(`~${e}`, 'gm'),
-        slash(alias[e])
-      )
-    })
-  })
-  vueConfig.forEach(vueConfigData => {
-    let alias = {}
-    var i
-    if ((i = vueConfigData) && (i = i.chainWebpack)) {
-      const Config = require('webpack-chain')
-      // Instantiate the configuration with a new API
-      const config = new Config()
-      if (Object.prototype.toString.call(i) === '[object Function]') {
-        i(config)
-        var chainConfig = config.toConfig()
-        if (
-          Object.prototype.toString.call(chainConfig) === '[object Object]' &&
-          (i = chainConfig) &&
-          (i = i.resolve) &&
-          (i = i.alias)
-        ) {
-          alias = i
+  try {
+    vueConfig.forEach(vueConfigData => {
+        let alias = {}
+        var i
+        if ((i = vueConfigData) && (i = i.configureWebpack)) {
+          if (Object.prototype.toString.call(i) === '[object Function]') {
+            i = i()
+          }
+          if (
+            Object.prototype.toString.call(i) === '[object Object]' &&
+            (i = i.resolve) &&
+            (i = i.alias)
+          ) {
+            alias = i
+          }
         }
-      }
-    }
-    Object.keys(alias).forEach(e => {
-      replaceCss = replaceCss.replace(
-        new RegExp(`~${e}`, 'gm'),
-        slash(alias[e])
-      )
-    })
-  })
+        Object.keys(alias).forEach(e => {
+          replaceCss = replaceCss.replace(
+            new RegExp(`~${e}`, 'gm'),
+            slash(alias[e])
+          )
+        })
+      })
+      vueConfig.forEach(vueConfigData => {
+        let alias = {}
+        var i
+        if ((i = vueConfigData) && (i = i.chainWebpack)) {
+          const Config = require('webpack-chain')
+          const config = new Config()
+          if (Object.prototype.toString.call(i) === '[object Function]') {
+            i(config)
+            var chainConfig = config.toConfig()
+            if (
+              Object.prototype.toString.call(chainConfig) === '[object Object]' &&
+              (i = chainConfig) &&
+              (i = i.resolve) &&
+              (i = i.alias)
+            ) {
+              alias = i
+            }
+          }
+        }
+        Object.keys(alias).forEach(e => {
+          replaceCss = replaceCss.replace(
+            new RegExp(`~${e}`, 'gm'),
+            slash(alias[e])
+          )
+        })
+      })
+  } catch (e) {}
+ 
 
   return replaceCss
 }
