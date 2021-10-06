@@ -17,9 +17,10 @@ npm install -g vue-clearcss
 ```
 
 ## Usage
-推荐用法如下，可以输入一个文件或是一个包含vue的目录
+推荐用法如下，可以在终端输入一个文件或是一个包含vue的目录
 
 ```js
+// 在终端输入
 unvuecss ./src/App.vue
 ```
 你也可以在node里面使用来做其他处理
@@ -31,7 +32,31 @@ clearcss('./test/aa.vue').then(e=>{
     // todo
 })
 ```
-目前暂时不需要配置文件
+## 忽略配置
+存在js中的class名和作用于子组件的class会被认为是无效的，可以用使用忽略注释
+package.json 中使用
+```js
+{
+    "ignoreCss": [
+        "page",
+        {
+        "reg": "page",
+        "attr": "g"
+        }
+    ],
+}
+```
+在css文件中 ignoreConfig（如例子中只要class链中包含了ff都会通过） 是作用于整个vue，ignorecss是作用于单个calss（注意事放在class里面，而且由于编译器的限制嵌套的class必须每个都写），建议使用ignoreConfig，
+```js
+/* ignoreConfig ['ff'] */
+.qw{
+    color: #000;
+}
+.re{
+    /* ignorecss */
+    color: #000;
+}
+```
  
 
 # Note
