@@ -20,6 +20,8 @@ module.exports = class filterStyle {
         this.opt = opt
         this.ignore = opt.ignore
         this.getComment = this.getCommentFun(lang)
+        this.cacheUnuseCss = new Set() // 没有使用的css
+        this.cachePassCss = new Set()  // 正在使用的css
         this.animation = opt.animation || {
             producer: [],
             consumer: [],
@@ -134,6 +136,7 @@ module.exports = class filterStyle {
                     let { producer, consumer } = fStyle.animation
                     producer.forEach((e) => {
                         if (!consumer.some((i) => i === e.aniName)) {
+                            // 动画
                             fStyle.setCssArray(e)
                         }
                     })
@@ -163,6 +166,7 @@ module.exports = class filterStyle {
                     let url = node.params
                     return fStyle.addNewStyle(url).catch((e) => {
                         let comment = fStyle.getComment(node)
+                        // css导入
                         this.setCssArray({
                             name: e,
                             position: `line: ${comment.position[0]}`,
@@ -267,11 +271,18 @@ module.exports = class filterStyle {
                     searchEle.after
                 )
                 let result = templateFun(searchEleResult, util.matchEleAttr)
-                if (result && result.length === 0) {
+                // 如果父元素只有的是并集，那么要2个父元素都没有找到才能确认是无用的,看test/twoParent文件
+                let ident = util.generateIdent(selector.nodes, comment)
+                if (result && result.length === 0 && !this.cachePassCss.has(ident)) {
+                    this.cacheUnuseCss.add(ident)
                     this.setCssArray(
                         util.assembleConsoleInfo(selector.nodes, comment)
                     )
                     unuse = true
+                }else if(this.cacheUnuseCss.has(ident)){
+                    this.resumeCssArray(ident)
+                }else{
+                    this.cachePassCss.add(ident)
                 }
             }
         })
@@ -283,4 +294,15 @@ module.exports = class filterStyle {
     setCssArray(css) {
         this.filterCssArray = this.filterCssArray.concat(css)
     }
+    resumeCssArray(ident){
+        let index = this.filterCssArray.findIndex(e=>{
+            `${e.name}$$${e.positionData.position.toString()}` === ident
+        })
+        this.cacheUnuseCss.delete(ident)
+        this.cachePassCss.add(ident)
+        if (index) {
+            this.filterCssArray.splice(index,1)
+        }
+    }
+
 }

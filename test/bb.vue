@@ -1,41 +1,202 @@
 <template>
-    <div id="app" class="aw" :sf="er">
-        <div>22</div>
-        <div>
-            <div>
-                22
-                <div>22
-
-                    <a class="gg">3</a>
-                </div>
-            </div>
-            <div>
-                <div>我是唐老鸭。</div>
-                <p class="ss">我住在 Duckburg。</p>
-            </div>
-            <div>22</div>
-        </div>
-        <div>22</div>
-    </div>
+    <view class="area-filter">
+        <view class="area-filter__container">
+            <scroll-view
+                scroll-y="true"
+                class="area-filter__left"
+            >
+                <left-list
+                    :list-data="areaListData"
+                    :list-index.sync="areaListIndexData"
+                />
+            </scroll-view>
+            <view class="area-filter__right">
+                <!-- 城区筛选 -->
+                <view
+                    v-if="areaListIndexData === 0"
+                    class="area__right-town"
+                >
+                    <block v-if="areaStyle === 3">
+                        <scroll-view
+                            scroll-y="true"
+                            class="right-town__first"
+                        >
+                            <view style="padding-bottom: 40rpx;">
+                                <ButtonList
+                                    :list-data="townListData"
+                                    @onChange="onChange"
+                                />
+                            </view>
+                        </scroll-view>
+                    </block>
+                    <!-- 地图找房筛选 -->
+                    <block v-else>
+                        <!-- 武汉商圈筛选 -->
+                        <scroll-view
+                            scroll-y="true"
+                            class="right-town__first"
+                            :style="{width:townListIndexData === 0?'100%':'240rpx'}"
+                        >
+                            <radio-list
+                                :list-data="townListData"
+                                :list-index.sync="townListIndexData"
+                                :width="townListIndexData === 0 ? '240rpx' : '100%'"
+                                has-children
+                            />
+                        </scroll-view>
+                        <scroll-view
+                            v-if="townListData[townListIndexData] && townListData[townListIndexData].value !== ''"
+                            scroll-y="true"
+                            class="right-town__second"
+                        >
+                            <checkbox-list
+                                :list-data="bizCircleListData"
+                                @onChange="changeBizCircle"
+                            />
+                        </scroll-view>
+                    </block>
+                </view>
+                <!-- 板块筛选 -->
+                <view
+                    v-if="areaListIndexData === 1"
+                    class="area__right-plate"
+                >
+                    <scroll-view
+                        scroll-y="true"
+                        class="right-plate__first"
+                    >
+                        <view style="padding-bottom: 40rpx;">
+                            <ButtonGroupList
+                                :listData="plateListData"
+                                styleMode="flex"
+                                placeholder="更多热门板块，持续更新中…"
+                                @onChange="changePlate"
+                            />
+                        </view>
+                    </scroll-view>
+                </view>
+                <!-- 地铁筛选 -->
+                <view
+                    v-if="areaListIndexData === 2"
+                    class="area__right-train"
+                >
+                    <scroll-view
+                        scroll-y="true"
+                        class="right-train__first"
+                        :style="{width:trainLineListIndexData === 0?'100%':'240rpx'}"
+                    >
+                        <radio-list
+                            :list-data="trainLineListData"
+                            :list-index.sync="trainLineListIndexData"
+                            :width="trainLineListIndexData === 0 ? '100%' : '240rpx'"
+                            :hasChildren="true"
+                        />
+                    </scroll-view>
+                    <scroll-view
+                        v-if="trainLineListIndexData !== 0"
+                        scroll-y="true"
+                        class="right-train__second"
+                    >
+                        <checkbox-list
+                            :list-data="trainTubeListData"
+                            @onChange="changeTrainTube"
+                        />
+                    </scroll-view>
+                </view>
+                <!-- 附近筛选 -->
+                <scroll-view
+                    v-if="areaListIndexData === 3"
+                    scroll-y="true"
+                    class="area__right-nearby"
+                >
+                    <radio-list
+                        :list-data="nearbyListData"
+                        :list-index.sync="nearbyListIndexData"
+                    />
+                </scroll-view>
+            </view>
+        </view>
+        <view class="area-filter__footer">
+            <footer-button
+                :isNative="isNative"
+                :button-list="buttonList"
+                @onReset="resetHandle"
+                @onSubmit="submitHandle"
+                @remove="removeHandle"
+            />
+        </view>
+    </view>
 </template>
-<script>
-export default {
-    mounted() {},
-    data() {
-        return {
-            fwe: true,
-            oo: ["main-container", fwe ? "yyyu" : ""],
-        }
-    },
-    methods: {},
-}
-</script>
+<style lang="scss">
 
-<style lang="less">
-@import './less/testCommon1.css';
-::v-deep .ss{
-    background-color: yellow;
-}
+
+    .area-filter__container {
+        display: flex;
+        flex: 1;
+        box-sizing: border-box;
+        background-color: #f6f6f6;
+    }
+
+    .area-filter__left {
+        width: 150rpx;
+        height: 100%;
+        box-sizing: border-box;
+        background: #f6f6f6;
+    }
+
+    .area-filter__right {
+        flex: 1;
+        height: 100%;
+        background: #fafafa;
+        overflow: hidden;
+
+        @mixin scrollBarY {
+            box-sizing: border-box;
+        }
+
+        .area__right-nearby {
+            @include scrollBarY();
+        }
+
+        .area__right-plate {
+            @include scrollBarY();
+            .right-plate__first {
+                height: 650rpx;
+                background: #fafafa;
+            }
+        }
+
+        .area__right-town,
+        .area__right-train {
+            display: flex;
+            height: 100%;
+            overflow: hidden;
+
+            .right-town__second,
+            .right-train__second {
+                flex: 1;
+                background: #fff;
+                height: 650rpx;
+            }
+
+            .right-town__first,
+            .right-town__second,
+            .right-train__first,
+            .right-train__second {
+                @include scrollBarY();
+            }
+            .right-town__first {
+                height: 650rpx;
+                background: #fafafa;
+            }
+            .right-town__second {
+                background: #fff;
+            }
+            .right-train__first {
+                height: 650rpx;
+                background: #fafafa;
+            }
+        }
+    }
 
 </style>
-

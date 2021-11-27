@@ -1,4 +1,4 @@
 const clearcss = require('./index')
-clearcss('./test/less/lessTestImport.vue').then(e=>{
+clearcss('./test/aa.vue').then(e=>{
     // todo
 })

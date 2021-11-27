@@ -66,4 +66,7 @@ describe('scssTest', () => {
   it('ignore css', (done) => {
     commonTestFunction(done, './scss/scssIgnore.vue')
   })
+  it('two parent', (done) => {
+    commonTestFunction(done, './scss/twoParent.vue')
+  })
 })

@@ -172,6 +172,12 @@ function assembleConsoleInfo (nodes, comment) {
     positionData: comment
   }
 }
+function  generateIdent(nodes, comment) {
+    let attr = nodes[nodes.length - 1].attribute
+    let { position, from: remark } = comment
+    let name = `${attr || nodes[nodes.length - 1].value} ${remark || ''}`
+    return `${name}$$${position.toString()}`
+}
 
 function findRelevanceUrl (importPath, cssStyle) {
   var fileInfo, realpath
@@ -283,5 +289,6 @@ module.exports = {
   assembleConsoleInfo,
   findRelevanceUrl,
   repalceImportUrl,
-  renderAfterReplace
+  renderAfterReplace,
+  generateIdent
 }
