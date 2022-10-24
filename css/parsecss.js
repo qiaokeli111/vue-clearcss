@@ -47,7 +47,7 @@ module.exports = class parsecss {
     var data = this.opt.vueData || fs.readFileSync(path.resolve(process.execPath, url), 'utf-8')
     var { validArr } = require('../util')
     var res = compiler.parseComponent(data, { pad: 'line' })
-    const htmlast = compiler.compile(res.template.content, {
+    const htmlast = compiler.compile(res.template ? res.template.content : '<template />', {
       modules: [this.templateModule]
     })
     let filterArr = []

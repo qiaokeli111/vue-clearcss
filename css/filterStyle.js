@@ -251,8 +251,8 @@ module.exports = class filterStyle {
                         selector.nodes,
                         this.context.opt.ignore
                     )
-                )
-                    return
+                ){return}
+               
                 let searchEle = util.findSearchEle(selector.nodes, this.context)
                 let searchEleResult = util.findEleWithHtml(
                     searchEle.searchEle,

@@ -15,6 +15,7 @@
   },
   "ignoreCss": [
     "page",
+    "::v-deep",
     {
       "reg": "page",
       "attr": "g"
